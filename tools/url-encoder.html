@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Encoder/Decoder</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; font-size: 2rem; }
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        textarea, input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Monaco', monospace;
+            font-size: 14px;
+        }
+        textarea { height: 150px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #e94560; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #e94560; color: #fff; }
+        .btn-primary:hover { background: #d63050; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #00d9ff; color: #0f3460; }
+        #output { height: 150px; }
+        .status {
+            margin-top: 10px; padding: 8px 16px; border-radius: 6px;
+            font-size: 14px; display: none;
+        }
+        .status.success { background: rgba(78, 205, 196, 0.2); color: #4ecdc4; display: block; }
+        .status.error { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; display: block; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 12px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .tab.active { background: #e94560; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .info { font-size: 12px; color: #888; margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 URL Encoder/Decoder</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('encode')">Encode</div>
+            <div class="tab" onclick="switchTab('decode')">Decode</div>
+            <div class="tab" onclick="switchTab('component')">Component</div>
+        </div>
+        
+        <div id="encode-tab" class="tab-content active">
+            <div class="card">
+                <label>Text to URL-encode:</label>
+                <textarea id="encode-input" placeholder="Hello World! 🌍"></textarea>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="encodeURL()">Encode URL</button>
+                    <button class="btn-secondary" onclick="clearInput('encode')">Clear</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="decode-tab" class="tab-content">
+            <div class="card">
+                <label>URL to decode:</label>
+                <textarea id="decode-input" placeholder="Hello%20World%21%F0%9F%8C%8D"></textarea>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="decodeURL()">Decode URL</button>
+                    <button class="btn-secondary" onclick="clearInput('decode')">Clear</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="component-tab" class="tab-content">
+            <div class="card">
+                <label>URL Component (encodes only special chars):</label>
+                <textarea id="component-input" placeholder="name=John Doe&age=30"></textarea>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="encodeComponent()">Encode Component</button>
+                    <button class="btn-secondary" onclick="decodeComponent()">Decode Component</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Result:</label>
+            <textarea id="output" readonly></textarea>
+            <div id="status" class="status"></div>
+            <div class="btn-group">
+                <button class="btn-copy" onclick="copyOutput()">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${tab === 'encode' ? 1 : tab === 'decode' ? 2 : 3})`).classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+        
+        function showStatus(msg, type) {
+            const el = document.getElementById('status');
+            el.textContent = msg;
+            el.className = 'status ' + type;
+            setTimeout(() => el.className = 'status', 3000);
+        }
+        
+        function encodeURL() {
+            try {
+                const input = document.getElementById('encode-input').value;
+                document.getElementById('output').value = encodeURI(input);
+                showStatus('Encoded successfully!', 'success');
+            } catch (e) { showStatus('Error: ' + e.message, 'error'); }
+        }
+        
+        function decodeURL() {
+            try {
+                const input = document.getElementById('decode-input').value;
+                document.getElementById('output').value = decodeURI(input);
+                showStatus('Decoded successfully!', 'success');
+            } catch (e) { showStatus('Error: ' + e.message, 'error'); }
+        }
+        
+        function encodeComponent() {
+            try {
+                const input = document.getElementById('component-input').value;
+                document.getElementById('output').value = encodeURIComponent(input);
+                showStatus('Encoded successfully!', 'success');
+            } catch (e) { showStatus('Error: ' + e.message, 'error'); }
+        }
+        
+        function decodeComponent() {
+            try {
+                const input = document.getElementById('component-input').value;
+                document.getElementById('output').value = decodeURIComponent(input);
+                showStatus('Decoded successfully!', 'success');
+            } catch (e) { showStatus('Error: ' + e.message, 'error'); }
+        }
+        
+        function clearInput(type) {
+            document.getElementById(`${type}-input`).value = '';
+        }
+        
+        function copyOutput() {
+            const output = document.getElementById('output');
+            if (!output.value) { showStatus('Nothing to copy', 'error'); return; }
+            navigator.clipboard.writeText(output.value);
+            showStatus('Copied!', 'success');
+        }
+    </script>
+</body>
+</html>
