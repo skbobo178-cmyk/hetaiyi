@@ -29,6 +29,15 @@ open webtoolkit.html
 
 無需伺服器、無需安裝、無需依賴！
 
+## 工具列表
+
+| 工具 | 說明 |
+|------|------|
+| webtoolkit.html | 萬用工具：URL、QR、JSON、顏色、時間 |
+| password-generator.html | 安全密碼產生器 |
+| text-diff.html | 文字比對差異工具 |
+| markdown-preview.html | Markdown 即時預覽 |
+
 ## 截圖
 
 - 簡潔的深色主題

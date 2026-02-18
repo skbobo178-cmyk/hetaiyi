@@ -29,6 +29,15 @@ open webtoolkit.html
 
 No server, no installation, no dependencies!
 
+## Tools Included
+
+| Tool | Description |
+|------|-------------|
+| webtoolkit.html | All-in-one: URL, QR, JSON, color, timestamp |
+| password-generator.html | Secure password generator |
+| text-diff.html | Compare two texts, highlight differences |
+| markdown-preview.html | Write Markdown, preview in real-time |
+
 ## Screenshots
 
 - Clean, dark theme

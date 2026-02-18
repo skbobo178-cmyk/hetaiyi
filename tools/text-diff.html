@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Diff Checker 📝</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1e1e1e; color: #d4d4d4; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; color: #569cd6; }
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        textarea { width: 100%; height: 300px; background: #252526; color: #d4d4d4; border: 1px solid #3c3c3c; border-radius: 8px; padding: 12px; font-family: 'Consolas', monospace; font-size: 13px; resize: vertical; }
+        textarea:focus { outline: none; border-color: #569cd6; }
+        .btn-group { text-align: center; margin-bottom: 20px; }
+        button { background: #0e639c; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 0 5px; }
+        button:hover { background: #1177bb; }
+        button.secondary { background: #3c3c3c; }
+        button.secondary:hover { background: #4c4c4c; }
+        .result { background: #252526; border-radius: 8px; padding: 15px; font-family: 'Consolas', monospace; white-space: pre-wrap; overflow-x: auto; }
+        .added { background: #2d4a2d; color: #89d185; }
+        .removed { background: #4a2d2d; color: #f48771; }
+        .line { padding: 2px 8px; border-radius: 3px; margin: 2px 0; display: block; }
+        .stats { text-align: center; margin-top: 15px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Text Diff Checker</h1>
+        <div class="panels">
+            <div><textarea id="old" placeholder="Original text..."></textarea></div>
+            <div><textarea id="new" placeholder="New text..."></textarea></div>
+        </div>
+        <div class="btn-group">
+            <button onclick="compare()">Compare</button>
+            <button class="secondary" onclick="clearAll()">Clear</button>
+        </div>
+        <div id="result"></div>
+        <div class="stats" id="stats"></div>
+    </div>
+    <script>
+        function compare() {
+            const oldText = document.getElementById('old').value.split('\n');
+            const newText = document.getElementById('new').value.split('\n');
+            let html = '', added = 0, removed = 0;
+            
+            // Simple line-by-line diff
+            const maxLines = Math.max(oldText.length, newText.length);
+            for (let i = 0; i < maxLines; i++) {
+                const oldLine = oldText[i] || '';
+                const newLine = newText[i] || '';
+                if (oldLine !== newLine) {
+                    if (oldLine && !newLine) {
+                        html += `<span class="line removed">- ${escape(oldLine)}</span>`;
+                        removed++;
+                    } else if (!oldLine && newLine) {
+                        html += `<span class="line added">+ ${escape(newLine)}</span>`;
+                        added++;
+                    } else {
+                        html += `<span class="line removed">- ${escape(oldLine)}</span>`;
+                        html += `<span class="line added">+ ${escape(newLine)}</span>`;
+                        removed++; added++;
+                    }
+                }
+            }
+            
+            if (!html) html = '<div style="text-align:center;color:#888">No differences found</div>';
+            document.getElementById('result').innerHTML = html;
+            document.getElementById('stats').textContent = `Added: ${added} lines | Removed: ${removed} lines`;
+        }
+        
+        function clearAll() {
+            document.getElementById('old').value = '';
+            document.getElementById('new').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('stats').textContent = '';
+        }
+        
+        function escape(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+    </script>
+</body>
+</html>
