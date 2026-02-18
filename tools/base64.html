@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Encoder/Decoder 🔐</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; color: #00d4ff; }
+        .panel { background: #16213e; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        textarea { width: 100%; min-height: 150px; background: #0f3460; border: none; border-radius: 8px; color: #fff; padding: 15px; font-family: monospace; font-size: 14px; resize: vertical; }
+        .btn-group { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
+        button { padding: 12px 24px; background: #00d4ff; color: #1a1a2e; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #00b8e6; }
+        button.secondary { background: #333; color: #fff; }
+        .swap { font-size: 24px; text-align: center; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Base64 Encoder/Decoder</h1>
+        <div class="panel">
+            <textarea id="input" placeholder="Enter text or Base64 string..."></textarea>
+            <div class="btn-group">
+                <button onclick="encode()">Encode</button>
+                <button onclick="decode()">Decode</button>
+                <button class="secondary" onclick="clearAll()">Clear</button>
+            </div>
+        </div>
+        <div class="swap">⇅</div>
+        <div class="panel">
+            <textarea id="output" placeholder="Result..." readonly></textarea>
+            <div class="btn-group">
+                <button class="secondary" onclick="copy()">Copy</button>
+                <button class="secondary" onclick="swap()">Swap</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function encode() {
+            try {
+                const input = document.getElementById('input').value;
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                document.getElementById('output').value = encoded;
+            } catch(e) {
+                alert('Error: ' + e.message);
+            }
+        }
+        
+        function decode() {
+            try {
+                const input = document.getElementById('input').value;
+                const decoded = decodeURIComponent(escape(atob(input)));
+                document.getElementById('output').value = decoded;
+            } catch(e) {
+                alert('Invalid Base64 string');
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+        }
+        
+        function copy() {
+            const output = document.getElementById('output').value;
+            if (!output) return;
+            navigator.clipboard.writeText(output);
+            alert('Copied!');
+        }
+        
+        function swap() {
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output').value;
+            document.getElementById('input').value = output;
+            document.getElementById('output').value = input;
+        }
+    </script>
+</body>
+</html>
