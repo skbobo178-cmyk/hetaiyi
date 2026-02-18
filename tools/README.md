@@ -40,6 +40,8 @@ No server, no installation, no dependencies!
 | pomodoro.html | 🍅 Focus timer (25/5 work intervals) |
 | quick-notes.html | 📝 Simple notes app (local storage) |
 | image-compressor.html | 🖼️ Compress images in browser |
+| ascii-table.html | 📊 ASCII character table |
+| countdown.html | ⏱️ Countdown timer with presets |
 
 ## Screenshots
 

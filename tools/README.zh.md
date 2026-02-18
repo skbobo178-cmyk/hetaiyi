@@ -40,6 +40,8 @@ open webtoolkit.html
 | pomodoro.html | 🍅 專注計時器（25/5 工作法） |
 | quick-notes.html | 📝 簡單記事本（本地儲存） |
 | image-compressor.html | 🖼️ 圖片壓縮工具 |
+| ascii-table.html | 📊 ASCII 表查詢 |
+| countdown.html | ⏱️ 倒數計時器 |
 
 ## 截圖
 

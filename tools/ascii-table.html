@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Table 📊</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #fff; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; color: #00d4ff; }
+        .search { width: 100%; padding: 15px; background: #16213e; border: none; border-radius: 8px; color: #fff; font-size: 16px; margin-bottom: 20px; }
+        .search:focus { outline: none; border: 2px solid #00d4ff; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: center; border: 1px solid #333; }
+        th { background: #16213e; color: #00d4ff; }
+        tr:hover { background: #16213e; }
+        .char { font-size: 20px; font-family: monospace; }
+        .dec { color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 ASCII Table</h1>
+        <input type="text" class="search" id="search" placeholder="Search by character, decimal, or description..." oninput="filter()">
+        <table>
+            <thead>
+                <tr><th>Dec</th><th>Hex</th><th>Char</th><th>Description</th></tr>
+            </thead>
+            <tbody id="table"></tbody>
+        </table>
+    </div>
+    <script>
+        const chars = [
+            [0, 'NUL', 'Null'], [1, 'SOH', 'Start of Heading'], [2, 'STX', 'Start of Text'], [3, 'ETX', 'End of Text'],
+            [4, 'EOT', 'End of Transmission'], [5, 'ENQ', 'Enquiry'], [6, 'ACK', 'Acknowledge'], [7, 'BEL', 'Bell'],
+            [8, 'BS', 'Backspace'], [9, 'TAB', 'Horizontal Tab'], [10, 'LF', 'Line Feed'], [11, 'VT', 'Vertical Tab'],
+            [12, 'FF', 'Form Feed'], [13, 'CR', 'Carriage Return'], [14, 'SO', 'Shift Out'], [15, 'SI', 'Shift In'],
+            [16, 'DLE', 'Data Link Escape'], [17, 'DC1', 'Device Control 1'], [18, 'DC2', 'Device Control 2'],
+            [19, 'DC3', 'Device Control 3'], [20, 'DC4', 'Device Control 4'], [21, 'NAK', 'Negative Acknowledge'],
+            [22, 'SYN', 'Synchronous Idle'], [23, 'ETB', 'End of Trans. Block'], [24, 'CAN', 'Cancel'],
+            [25, 'EM', 'End of Medium'], [26, 'SUB', 'Substitute'], [27, 'ESC', 'Escape'], [28, 'FS', 'File Separator'],
+            [29, 'GS', 'Group Separator'], [30, 'RS', 'Record Separator'], [31, 'US', 'Unit Separator'],
+            [32, 'SP', 'Space'], [33, '!', 'Exclamation'], [34, '"', 'Quotation mark'], [35, '#', 'Number sign'],
+            [36, '$', 'Dollar sign'], [37, '%', 'Percent'], [38, '&', 'Ampersand'], [39, "'", 'Apostrophe'],
+            [40, '(', 'Left parenthesis'], [41, ')', 'Right parenthesis'], [42, '*', 'Asterisk'], [43, '+', 'Plus sign'],
+            [44, ',', 'Comma'], [45, '-', 'Hyphen'], [46, '.', 'Period'], [47, '/', 'Slash'],
+            [48, '0', 'Digit 0'], [49, '1', 'Digit 1'], [50, '2', 'Digit 2'], [51, '3', 'Digit 3'],
+            [52, '4', 'Digit 4'], [53, '5', 'Digit 5'], [54, '6', 'Digit 6'], [55, '7', 'Digit 7'],
+            [56, '8', 'Digit 8'], [57, '9', 'Digit 9'], [58, ':', 'Colon'], [59, ';', 'Semicolon'],
+            [60, '<', 'Less than'], [61, '=', 'Equals'], [62, '>', 'Greater than'], [63, '?', 'Question mark'],
+            [64, '@', 'At sign'], [65, 'A', 'Uppercase A'], [66, 'B', 'Uppercase B'], [67, 'C', 'Uppercase C'],
+            [68, 'D', 'Uppercase D'], [69, 'E', 'Uppercase E'], [70, 'F', 'Uppercase F'], [71, 'G', 'Uppercase G'],
+            [72, 'H', 'Uppercase H'], [73, 'I', 'Uppercase I'], [74, 'J', 'Uppercase J'], [75, 'K', 'Uppercase K'],
+            [76, 'L', 'Uppercase L'], [77, 'M', 'Uppercase M'], [78, 'N', 'Uppercase N'], [79, 'O', 'Uppercase O'],
+            [80, 'P', 'Uppercase P'], [81, 'Q', 'Uppercase Q'], [82, 'R', 'Uppercase R'], [83, 'S', 'Uppercase S'],
+            [84, 'T', 'Uppercase T'], [85, 'U', 'Uppercase U'], [86, 'V', 'Uppercase V'], [87, 'W', 'Uppercase W'],
+            [88, 'X', 'Uppercase X'], [89, 'Y', 'Uppercase Y'], [90, 'Z', 'Uppercase Z'], [91, '[', 'Left bracket'],
+            [92, '\\', 'Backslash'], [93, ']', 'Right bracket'], [94, '^', 'Caret'], [95, '_', 'Underscore'],
+            [96, '`', 'Grave accent'], [97, 'a', 'Lowercase a'], [98, 'b', 'Lowercase b'], [99, 'c', 'Lowercase c'],
+            [100, 'd', 'Lowercase d'], [101, 'e', 'Lowercase e'], [102, 'f', 'Lowercase f'], [103, 'g', 'Lowercase g'],
+            [104, 'h', 'Lowercase h'], [105, 'i', 'Lowercase i'], [106, 'j', 'Lowercase j'], [107, 'k', 'Lowercase k'],
+            [108, 'l', 'Lowercase l'], [109, 'm', 'Lowercase m'], [110, 'n', 'Lowercase n'], [111, 'o', 'Lowercase o'],
+            [112, 'p', 'Lowercase p'], [113, 'q', 'Lowercase q'], [114, 'r', 'Lowercase r'], [115, 's', 'Lowercase s'],
+            [116, 't', 'Lowercase t'], [117, 'u', 'Lowercase u'], [118, 'v', 'Lowercase v'], [119, 'w', 'Lowercase w'],
+            [120, 'x', 'Lowercase x'], [121, 'y', 'Lowercase y'], [122, 'z', 'Lowercase z'], [123, '{', 'Left brace'],
+            [124, '|', 'Vertical bar'], [125, '}', 'Right brace'], [126, '~', 'Tilde'], [127, 'DEL', 'Delete']
+        ];
+        
+        function render(filter = '') {
+            const tbody = document.getElementById('table');
+            tbody.innerHTML = chars.filter(c => {
+                const s = filter.toLowerCase();
+                if (!s) return true;
+                return c[0].toString().includes(s) || c[1].toLowerCase().includes(s) || c[2].toLowerCase().includes(s);
+            }).map(c => `<tr><td class="dec">${c[0]}</td><td class="dec">${c[0].toString(16).toUpperCase()}</td><td class="char">${c[1]}</td><td>${c[2]}</td></tr>`).join('');
+        }
+        
+        function filter() { render(document.getElementById('search').value); }
+        render();
+    </script>
+</body>
+</html>

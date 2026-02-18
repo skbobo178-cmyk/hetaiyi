@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer ⏱️</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0d1117; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { text-align: center; background: #161b22; padding: 40px; border-radius: 20px; width: 90%; max-width: 500px; }
+        h1 { margin-bottom: 30px; color: #58a6ff; }
+        .input-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .input-group input { padding: 15px; background: #0d1117; border: 1px solid #30363d; border-radius: 10px; color: #fff; font-size: 24px; text-align: center; }
+        .input-group input:focus { outline: none; border-color: #58a6ff; }
+        .input-group label { font-size: 12px; color: #8b949e; display: block; margin-top: 5px; }
+        .timer { font-size: 72px; font-weight: bold; margin: 30px 0; color: #f0883e; }
+        .buttons { display: flex; gap: 10px; justify-content: center; }
+        button { padding: 15px 35px; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .start { background: #238636; color: white; }
+        .start:hover { background: #2ea043; }
+        .pause { background: #d29922; color: white; }
+        .reset { background: #30363d; color: white; }
+        .presets { margin-top: 25px; padding-top: 20px; border-top: 1px solid #30363d; }
+        .presets h3 { font-size: 14px; color: #8b949e; margin-bottom: 15px; }
+        .preset-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .preset-btn { background: #21262d; color: #58a6ff; border: 1px solid #30363d; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .preset-btn:hover { background: #30363d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ Countdown Timer</h1>
+        <div class="input-group">
+            <div><input type="number" id="hours" placeholder="00" min="0" max="99"><label>Hours</label></div>
+            <div><input type="number" id="minutes" placeholder="05" min="0" max="59"><label>Minutes</label></div>
+            <div><input type="number" id="seconds" placeholder="00" min="0" max="59"><label>Seconds</label></div>
+        </div>
+        <div class="timer" id="timer">00:00:00</div>
+        <div class="buttons">
+            <button class="start" id="startBtn" onclick="toggleTimer()">Start</button>
+            <button class="reset" onclick="resetTimer()">Reset</button>
+        </div>
+        <div class="presets">
+            <h3>Quick Presets</h3>
+            <div class="preset-btns">
+                <button class="preset-btn" onclick="setPreset(1)">1 min</button>
+                <button class="preset-btn" onclick="setPreset(3)">3 min</button>
+                <button class="preset-btn" onclick="setPreset(5)">5 min</button>
+                <button class="preset-btn" onclick="setPreset(10)">10 min</button>
+                <button class="preset-btn" onclick="setPreset(15)">15 min</button>
+                <button class="preset-btn" onclick="setPreset(30)">30 min</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let totalSeconds = 0;
+        let remaining = 0;
+        let isRunning = false;
+        let interval = null;
+        
+        function getTotalSeconds() {
+            const h = parseInt(document.getElementById('hours').value) || 0;
+            const m = parseInt(document.getElementById('minutes').value) || 0;
+            const s = parseInt(document.getElementById('seconds').value) || 0;
+            return h * 3600 + m * 60 + s;
+        }
+        
+        function updateDisplay() {
+            const h = Math.floor(remaining / 3600);
+            const m = Math.floor((remaining % 3600) / 60);
+            const s = remaining % 60;
+            document.getElementById('timer').textContent = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.title = document.getElementById('timer').textContent + ' - Timer';
+        }
+        
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(interval);
+                document.getElementById('startBtn').textContent = 'Start';
+                document.getElementById('startBtn').classList.remove('pause');
+            } else {
+                if (remaining <= 0) {
+                    remaining = getTotalSeconds();
+                    if (remaining <= 0) return;
+                }
+                interval = setInterval(() => {
+                    remaining--;
+                    updateDisplay();
+                    if (remaining <= 0) {
+                        clearInterval(interval);
+                        isRunning = false;
+                        document.getElementById('startBtn').textContent = 'Start';
+                        document.getElementById('startBtn').classList.remove('pause');
+                        playAlarm();
+                    }
+                }, 1000);
+                document.getElementById('startBtn').textContent = 'Pause';
+                document.getElementById('startBtn').classList.add('pause');
+            }
+            isRunning = !isRunning;
+        }
+        
+        function resetTimer() {
+            clearInterval(interval);
+            isRunning = false;
+            remaining = 0;
+            document.getElementById('hours').value = '';
+            document.getElementById('minutes').value = '';
+            document.getElementById('seconds').value = '';
+            document.getElementById('timer').textContent = '00:00:00';
+            document.getElementById('startBtn').textContent = 'Start';
+            document.getElementById('startBtn').classList.remove('pause');
+            document.title = 'Countdown Timer ⏱️';
+        }
+        
+        function setPreset(minutes) {
+            document.getElementById('hours').value = 0;
+            document.getElementById('minutes').value = minutes;
+            document.getElementById('seconds').value = 0;
+            remaining = minutes * 60;
+            updateDisplay();
+        }
+        
+        function playAlarm() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    osc.connect(ctx.destination);
+                    osc.frequency.value = 800;
+                    osc.start();
+                    setTimeout(() => osc.stop(), 200);
+                }, i * 500);
+            }
+        }
+    </script>
+</body>
+</html>
