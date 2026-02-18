@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter 📊</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; color: #00d4ff; }
+        textarea { width: 100%; min-height: 300px; background: #16213e; border: 2px solid #0f3460; border-radius: 12px; color: #fff; padding: 20px; font-size: 16px; line-height: 1.8; resize: vertical; }
+        textarea:focus { outline: none; border-color: #00d4ff; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+        .stat { background: #16213e; padding: 20px; border-radius: 12px; text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #00d4ff; }
+        .stat-label { font-size: 14px; color: #888; margin-top: 5px; }
+        .top-words { background: #16213e; padding: 20px; border-radius: 12px; margin-top: 20px; }
+        .top-words h3 { color: #00d4ff; margin-bottom: 15px; }
+        .word-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .word-tag { background: #0f3460; padding: 8px 15px; border-radius: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Word Counter</h1>
+        <textarea id="text" placeholder="Paste your text here..." oninput="count()"></textarea>
+        <div class="stats">
+            <div class="stat"><div class="stat-value" id="chars">0</div><div class="stat-label">Characters</div></div>
+            <div class="stat"><div class="stat-value" id="words">0</div><div class="stat-label">Words</div></div>
+            <div class="stat"><div class="stat-value" id="lines">0</div><div class="stat-label">Lines</div></div>
+            <div class="stat"><div class="stat-value" id="para">0</div><div class="stat-label">Paragraphs</div></div>
+            <div class="stat"><div class="stat-value" id="read">0</div><div class="stat-label">Reading (min)</div></div>
+        </div>
+        <div class="top-words">
+            <h3>Most Used Words</h3>
+            <div class="word-list" id="topWords"></div>
+        </div>
+    </div>
+    <script>
+        function count() {
+            const text = document.getElementById('text').value;
+            
+            // Basic counts
+            document.getElementById('chars').textContent = text.length;
+            document.getElementById('words').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+            document.getElementById('lines').textContent = text ? text.split('\n').length : 0;
+            document.getElementById('para').textContent = text ? text.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
+            document.getElementById('read').textContent = Math.ceil(text.split(/\s+/).length / 200);
+            
+            // Top words
+            const words = text.toLowerCase().match(/\b[a-z]+\b/g) || [];
+            const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'to', 'of', 'in', 'for', 'on', 'with', 'at', 'by', 'from', 'as', 'it', 'be', 'this', 'that', 'i', 'you', 'we', 'they']);
+            const freq = {};
+            words.forEach(w => { if (!stopWords.has(w) && w.length > 2) freq[w] = (freq[w] || 0) + 1; });
+            const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            document.getElementById('topWords').innerHTML = sorted.map(([w, c]) => `<span class="word-tag">${w} (${c})</span>`).join('') || 'No words yet';
+        }
+    </script>
+</body>
+</html>
