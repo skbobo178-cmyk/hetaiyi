@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timestamp Converter</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a0a0a0;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-family: 'Monaco', monospace;
+        }
+        input:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #a855f7;
+            color: #fff;
+        }
+        .btn-primary:hover { background: #9333ea; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .result {
+            background: rgba(0,0,0,0.4);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: 'Monaco', monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        .result-label {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .result-value {
+            color: #a855f7;
+            font-size: 16px;
+        }
+        .now-btn {
+            background: #22c55e;
+            color: #fff;
+        }
+        .now-btn:hover { background: #16a34a; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .tab.active {
+            background: #a855f7;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ Timestamp Converter</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('unix')">Unix → Human</div>
+            <div class="tab" onclick="switchTab('human')">Human → Unix</div>
+        </div>
+        
+        <div id="unix-tab" class="tab-content active">
+            <div class="card">
+                <label>Unix Timestamp (seconds):</label>
+                <input type="number" id="unix-input" placeholder="e.g. 1704067200">
+                <button class="btn-primary" onclick="convertFromUnix()">Convert</button>
+                <button class="now-btn" onclick="setCurrentUnix()">Now</button>
+                
+                <div id="unix-result" class="result" style="display:none;">
+                    <div class="result-label">Local Time</div>
+                    <div class="result-value" id="local-time"></div>
+                    <div class="result-label" style="margin-top:12px">UTC</div>
+                    <div class="result-value" id="utc-time"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="human-tab" class="tab-content">
+            <div class="card">
+                <label>Date & Time:</label>
+                <input type="datetime-local" id="datetime-input">
+                <button class="btn-primary" onclick="convertFromHuman()">Convert</button>
+                <button class="now-btn" onclick="setCurrentDateTime()">Now</button>
+                
+                <div id="human-result" class="result" style="display:none;">
+                    <div class="result-label">Unix Timestamp</div>
+                    <div class="result-value" id="unix-output"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Quick Reference - Common Timestamps:</label>
+            <div class="result">
+                <div class="result-label">Now</div>
+                <div class="result-value" id="now-ts"></div>
+                <div class="result-label" style="margin-top:12px">Today Midnight</div>
+                <div class="result-value" id="midnight-ts"></div>
+                <div class="result-label" style="margin-top:12px">Tomorrow Midnight</div>
+                <div class="result-value" id="tomorrow-ts"></div>
+            </div>
+            <button class="btn-secondary" onclick="updateQuickRef()">Refresh</button>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'unix') {
+                document.querySelector('.tabs .tab:first-child').classList.add('active');
+                document.getElementById('unix-tab').classList.add('active');
+            } else {
+                document.querySelector('.tabs .tab:last-child').classList.add('active');
+                document.getElementById('human-tab').classList.add('active');
+            }
+        }
+
+        function convertFromUnix() {
+            const input = document.getElementById('unix-input').value.trim();
+            if (!input) return;
+            
+            const timestamp = parseInt(input);
+            const date = new Date(timestamp * 1000);
+            
+            document.getElementById('local-time').textContent = date.toLocaleString();
+            document.getElementById('utc-time').textContent = date.toUTCString();
+            document.getElementById('unix-result').style.display = 'block';
+        }
+
+        function convertFromHuman() {
+            const input = document.getElementById('datetime-input').value;
+            if (!input) return;
+            
+            const date = new Date(input);
+            const unix = Math.floor(date.getTime() / 1000);
+            
+            document.getElementById('unix-output').textContent = unix;
+            document.getElementById('human-result').style.display = 'block';
+        }
+
+        function setCurrentUnix() {
+            const now = Math.floor(Date.now() / 1000);
+            document.getElementById('unix-input').value = now;
+            convertFromUnix();
+        }
+
+        function setCurrentDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('datetime-input').value = now.toISOString().slice(0, 16);
+            convertFromHuman();
+        }
+
+        function updateQuickRef() {
+            const now = Math.floor(Date.now() / 1000);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayTs = Math.floor(today.getTime() / 1000);
+            const tomorrowTs = todayTs + 86400;
+            
+            document.getElementById('now-ts').textContent = now;
+            document.getElementById('midnight-ts').textContent = todayTs;
+            document.getElementById('tomorrow-ts').textContent = tomorrowTs;
+        }
+
+        updateQuickRef();
+    </script>
+</body>
+</html>
