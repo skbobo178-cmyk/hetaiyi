@@ -1,12 +1,12 @@
 # helpers/
 
-Useful scripts that solve everyday problems.
+解決日常問題的實用腳本。
 
 [English](README.md) | [中文](README.zh.md)
 
 ---
 
-## Scripts
+## 腳本
 
 ### screenshot_organizer.py
-Auto-organize screenshots by date.
+自動按日期整理截圖。
