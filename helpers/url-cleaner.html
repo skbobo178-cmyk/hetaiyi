@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 URL Cleaner & Tracker Remover</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        textarea, input { width: 100%; background: #0f0f23; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; }
+        textarea { min-height: 100px; resize: vertical; font-family: monospace; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #aaa; }
+        button { background: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.1s; }
+        button:hover { transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-secondary { background: #4a4a6a; }
+        .result { background: #0f0f23; padding: 15px; border-radius: 8px; margin-top: 15px; word-break: break-all; font-family: monospace; font-size: 13px; max-height: 200px; overflow-y: auto; }
+        .trackers-found { color: #e94560; font-size: 13px; margin-top: 10px; }
+        .success { color: #4ade80; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; margin: 15px 0; }
+        .checkbox-group label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; }
+        .stats { display: flex; gap: 20px; margin-top: 15px; font-size: 13px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 URL Cleaner</h1>
+        <p class="subtitle">Remove tracking parameters, clean URLs, protect privacy</p>
+        
+        <div class="card">
+            <label>Paste URLs (one per line):</label>
+            <textarea id="input" placeholder="https://example.com?utm_source=twitter&fbclid=abc123..."></textarea>
+            <div class="btn-row">
+                <button onclick="cleanUrls()">🧹 Clean URLs</button>
+                <button class="btn-secondary" onclick="copyResult()">📋 Copy</button>
+                <button class="btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Cleaned URLs:</label>
+            <div class="result" id="output"></div>
+            <div class="trackers-found" id="trackers"></div>
+            <div class="stats" id="stats"></div>
+        </div>
+    </div>
+
+    <script>
+        // Known tracking parameters to remove
+        const TRACKING_PARAMS = [
+            'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+            'fbclid', 'gclid', 'dclid', 'msclkid', 'mc_eid', '_ga', '_gl',
+            'ref', 'ref_src', 'ref_url', 'ref_cta', 'ref_url',
+            'share', 'spm', 'cmp', 'source', 'icid', 'trk', 'trkCampaign',
+            'hsCtaTracking', 'mkt_tok', 'vero_conv', 'vero_id',
+            'yclid', '_openstat', 'wickedid', 'ml_subscriber', 'ml_subscriber_hash',
+            's_kwcid', 'ef_id', 'soc_src', 'soc_trk', 'gbraid', 'wbraid',
+            'gclsrc', 'dara', 'mtm_source', 'mtm_medium', 'mtm_campaign', 'mtm_keyword',
+            'pk_source', 'pk_medium', 'pk_campaign', 'pk_keyword',
+            'msclkid', 'zanpid', 'trk_contact', 'trk_msg', 'trk_module', 'trk_sid',
+            'soc_source', 'soc_medium', 'soc_campaign',
+            'igshid', 'si', 'si', 'feature', 'app', 'context'
+        ];
+
+        function cleanUrls() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) return;
+
+            const urls = input.split('\n').filter(u => u.trim());
+            const cleaned = [];
+            let totalTrackers = 0;
+
+            urls.forEach(url => {
+                url = url.trim();
+                try {
+                    // Handle URLs without protocol
+                    if (url && !url.match(/^https?:\/\//)) {
+                        url = 'https://' + url;
+                    }
+                    
+                    const urlObj = new URL(url);
+                    const params = new URLSearchParams(urlObj.search);
+                    const removed = [];
+                    
+                    TRACKING_PARAMS.forEach(param => {
+                        if (params.has(param)) {
+                            removed.push(param);
+                            params.delete(param);
+                        }
+                    });
+                    
+                    // Also remove any param starting with utm_ or fb_
+                    Array.from(params.keys()).forEach(key => {
+                        if (key.startsWith('utm_') || key.startsWith('fb_') || key.startsWith('gc_')) {
+                            removed.push(key);
+                            params.delete(key);
+                        }
+                    });
+                    
+                    urlObj.search = params.toString();
+                    cleaned.push(urlObj.toString());
+                    totalTrackers += removed.length;
+                } catch (e) {
+                    cleaned.push(url); // Keep original if invalid
+                }
+            });
+
+            document.getElementById('output').textContent = cleaned.join('\n');
+            document.getElementById('trackers').textContent = totalTrackers > 0 
+                ? `🛡️ Removed ${totalTrackers} tracking parameter${totalTrackers > 1 ? 's' : ''}` 
+                : '';
+            document.getElementById('stats').textContent = `Processed ${urls.length} URL${urls.length > 1 ? 's' : ''}`;
+        }
+
+        function copyResult() {
+            const text = document.getElementById('output').textContent;
+            if (text) {
+                navigator.clipboard.writeText(text);
+                const btn = document.querySelector('.btn-secondary');
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy', 1500);
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').textContent = '';
+            document.getElementById('trackers').textContent = '';
+            document.getElementById('stats').textContent = '';
+        }
+    </script>
+</body>
+</html>
