@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorem Ipsum Generator 📝</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; color: #00d4ff; }
+        .options { background: #16213e; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        .option { margin-bottom: 15px; }
+        .option label { display: block; margin-bottom: 8px; color: #888; }
+        .option input, .option select { width: 100%; padding: 12px; background: #0f3460; border: none; border-radius: 8px; color: #fff; }
+        .generate-btn { width: 100%; padding: 15px; background: #00d4ff; color: #1a1a2e; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .generate-btn:hover { background: #00b8e6; }
+        .output { background: #16213e; padding: 25px; border-radius: 12px; margin-top: 20px; }
+        .output textarea { width: 100%; min-height: 300px; background: #0f3460; border: none; border-radius: 8px; color: #fff; padding: 15px; font-size: 14px; line-height: 1.8; resize: vertical; }
+        .copy-btn { background: #333; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Lorem Ipsum Generator</h1>
+        <div class="options">
+            <div class="option">
+                <label>Number of paragraphs:</label>
+                <input type="number" id="paragraphs" value="3" min="1" max="20">
+            </div>
+            <div class="option">
+                <label>Type:</label>
+                <select id="type">
+                    <option value="classic">Classic Lorem Ipsum</option>
+                    <option value="coffee">Coffee (Hipster Ipsum)</option>
+                    <option value="zombie">Zombie Ipsum</option>
+                    <option value="pirate">Pirate Ipsum</option>
+                </select>
+            </div>
+            <button class="generate-btn" onclick="generate()">Generate</button>
+        </div>
+        <div class="output">
+            <textarea id="output"></textarea>
+            <button class="copy-btn" onclick="copy()">Copy to Clipboard</button>
+        </div>
+    </div>
+    <script>
+        const classics = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+        
+        const coffee = "Man braid flexitarian, four dollar toast Helvetica 8-bit trust fund. Roof party viral Blue Bottle, typewriter pork belly McSweeney's. Hashtag listicle slow-carb, salvia PBR&B art party. Letterpress Carles direct trade, shabby chic flexitarian 90's messenger bag Truffaut.";
+        
+        const zombie = "Zombie ipsum reversus ab viral inferno, nam rick grimes malum cerebro. De carne lumbering animata corpora quaeritis. DeApes brainsss undead malum. Sicut spadeus dead brainsss. EcceAsync iterator() for zombie ipsum reversus ab viral inferno.";
+        
+        const pirate = "Ahoy! Shiver me timbers squiffy doubloons sloop. Jack Tar transom Pieces of Eight gibbet. Corsair fluke case shot Letter of Marque. Pink provost belay fire ship measured fer yer chains.";
+        
+        function generate() {
+            const type = document.getElementById('type').value;
+            const n = parseInt(document.getElementById('paragraphs').value);
+            let text = [];
+            let source;
+            
+            switch(type) {
+                case 'coffee': source = coffee; break;
+                case 'zombie': source = zombie; break;
+                case 'pirate': source = pirate; break;
+                default: source = classics;
+            }
+            
+            const sentences = source.split('. ').filter(s => s);
+            for (let i = 0; i < n; i++) {
+                let para = [];
+                let len = 4 + Math.floor(Math.random() * 4);
+                for (let j = 0; j < len; j++) {
+                    para.push(sentences[Math.floor(Math.random() * sentences.length)]);
+                }
+                text.push(para.join('. ') + '.');
+            }
+            
+            document.getElementById('output').value = text.join('\n\n');
+        }
+        
+        function copy() {
+            const el = document.getElementById('output');
+            el.select();
+            document.execCommand('copy');
+            alert('Copied!');
+        }
+        
+        generate();
+    </script>
+</body>
+</html>
