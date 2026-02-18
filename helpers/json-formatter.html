@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{} JSON Formatter & Validator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        h1 span { color: #e94560; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        textarea { width: 100%; background: #0f0f23; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; min-height: 150px; resize: vertical; font-family: 'Monaco', 'Menlo', monospace; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #aaa; }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        button { background: #e94560; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.1s; }
+        button:hover { transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+        .btn-secondary { background: #4a4a6a; }
+        .btn-success { background: #4ade80; color: #000; }
+        .result { background: #0f0f23; padding: 15px; border-radius: 8px; margin-top: 15px; white-space: pre-wrap; word-break: break-word; max-height: 400px; overflow-y: auto; font-size: 13px; font-family: 'Monaco', 'Menlo', monospace; }
+        .error { color: #ff6b6b; }
+        .success { color: #4ade80; }
+        .options { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+        .options label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; }
+        .stats { font-size: 13px; color: #888; margin-top: 10px; }
+        .mini { font-size: 12px; padding: 8px 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span>{}</span> JSON Formatter</h1>
+        <p class="subtitle">Format, validate, minify, compare JSON</p>
+        
+        <div class="card">
+            <label>Input JSON:</label>
+            <textarea id="input" placeholder='{"name": "test", "value": 123}'></textarea>
+            <div class="btn-row">
+                <button onclick="formatJSON()">✨ Format / Prettify</button>
+                <button onclick="minifyJSON()">➖ Minify</button>
+                <button onclick="validateJSON()">✓ Validate</button>
+                <button class="btn-secondary" onclick="clearInput()">🗑️ Clear</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Result:</label>
+            <div class="result" id="output"></div>
+            <div class="stats" id="stats"></div>
+        </div>
+        
+        <div class="card">
+            <label>Tools:</label>
+            <div class="btn-row">
+                <button class="btn-success mini" onclick="extractKeys()">🔑 Extract Keys</button>
+                <button class="btn-success mini" onclick="extractValues()">📋 Extract Values</button>
+                <button class="btn-success mini" onclick="sortKeys()">🔀 Sort Keys</button>
+                <button class="btn-success mini" onclick="convertToJS()">.js Export</button>
+                <button class="btn-success mini" onclick="convertToCSV()">📊 to CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getText() { return document.getElementById('input').value; }
+        
+        function parseJSON() {
+            try {
+                return JSON.parse(getText());
+            } catch (e) {
+                throw new Error(e.message);
+            }
+        }
+
+        function setOutput(text, isError = false) {
+            const el = document.getElementById('output');
+            el.textContent = text;
+            el.className = 'result ' + (isError ? 'error' : '');
+        }
+
+        function updateStats(action, size) {
+            document.getElementById('stats').textContent = action + ': ' + size.toLocaleString() + ' chars';
+        }
+
+        function formatJSON() {
+            try {
+                const obj = parseJSON();
+                const formatted = JSON.stringify(obj, null, 2);
+                setOutput(formatted);
+                updateStats('Formatted', formatted.length);
+            } catch (e) {
+                setOutput('❌ Invalid JSON: ' + e.message, true);
+            }
+        }
+
+        function minifyJSON() {
+            try {
+                const obj = parseJSON();
+                const minified = JSON.stringify(obj);
+                setOutput(minified);
+                updateStats('Minified', minified.length);
+            } catch (e) {
+                setOutput('❌ Invalid JSON: ' + e.message, true);
+            }
+        }
+
+        function validateJSON() {
+            try {
+                const obj = parseJSON();
+                const lines = getText().split('\n').length;
+                const keys = countKeys(obj);
+                setOutput('✅ Valid JSON!\n\n📊 Stats:\n• Lines: ' + lines + '\n• Top-level keys: ' + keys + '\n• Type: ' + getType(obj), false);
+                updateStats('Validated', getText().length);
+            } catch (e) {
+                setOutput('❌ Invalid JSON: ' + e.message, true);
+            }
+        }
+
+        function countKeys(obj) {
+            if (Array.isArray(obj)) return obj.length;
+            if (typeof obj === 'object' && obj !== null) return Object.keys(obj).length;
+            return 0;
+        }
+
+        function getType(obj) {
+            if (Array.isArray(obj)) return 'Array';
+            return typeof obj;
+        }
+
+        function extractKeys() {
+            try {
+                const obj = parseJSON();
+                const keys = [];
+                function walk(o) {
+                    if (typeof o === 'object' && o !== null) {
+                        Object.keys(o).forEach(k => {
+                            if (!keys.includes(k)) keys.push(k);
+                        });
+                        Object.values(o).forEach(walk);
+                    }
+                }
+                walk(obj);
+                setOutput(keys.join('\n'));
+                updateStats('Keys extracted', keys.length);
+            } catch (e) {
+                setOutput('❌ ' + e.message, true);
+            }
+        }
+
+        function extractValues() {
+            try {
+                const obj = parseJSON();
+                const values = [];
+                function walk(o) {
+                    if (typeof o === 'object' && o !== null) {
+                        Object.values(o).forEach(v => {
+                            if (typeof v !== 'object') values.push(v);
+                            else walk(v);
+                        });
+                    }
+                }
+                walk(obj);
+                setOutput(values.join('\n'));
+                updateStats('Values extracted', values.length);
+            } catch (e) {
+                setOutput('❌ ' + e.message, true);
+            }
+        }
+
+        function sortKeys() {
+            try {
+                const obj = parseJSON();
+                const sorted = sortObjectKeys(obj);
+                setOutput(JSON.stringify(sorted, null, 2));
+                updateStats('Keys sorted', JSON.stringify(sorted).length);
+            } catch (e) {
+                setOutput('❌ ' + e.message, true);
+            }
+        }
+
+        function sortObjectKeys(obj) {
+            if (Array.isArray(obj)) return obj.map(sortObjectKeys);
+            if (typeof obj === 'object' && obj !== null) {
+                const sorted = {};
+                Object.keys(obj).sort().forEach(k => {
+                    sorted[k] = sortObjectKeys(obj[k]);
+                });
+                return sorted;
+            }
+            return obj;
+        }
+
+        function convertToJS() {
+            try {
+                const obj = parseJSON();
+                const name = prompt('Variable name:', 'data') || 'data';
+                setOutput('const ' + name + ' = ' + JSON.stringify(obj, null, 2) + ';\n\nexport default ' + name + ';');
+                updateStats('JS Export', getText().length);
+            } catch (e) {
+                setOutput('❌ ' + e.message, true);
+            }
+        }
+
+        function convertToCSV() {
+            try {
+                const obj = parseJSON();
+                if (!Array.isArray(obj)) {
+                    setOutput('❌ JSON must be an array of objects for CSV conversion', true);
+                    return;
+                }
+                const keys = Object.keys(obj[0]);
+                const rows = obj.map(item => keys.map(k => JSON.stringify(item[k] ?? '')).join(','));
+                const csv = [keys.join(','), ...rows].join('\n');
+                setOutput(csv);
+                updateStats('CSV', csv.length);
+            } catch (e) {
+                setOutput('❌ ' + e.message, true);
+            }
+        }
+
+        function clearInput() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').textContent = '';
+            document.getElementById('stats').textContent = '';
+        }
+
+        // Format on Ctrl+Enter
+        document.getElementById('input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) formatJSON();
+        });
+    </script>
+</body>
+</html>
