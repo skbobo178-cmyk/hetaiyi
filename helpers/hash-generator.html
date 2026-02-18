@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#️⃣ Hash Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        textarea, input { width: 100%; background: #0f0f23; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; }
+        textarea { min-height: 100px; resize: vertical; font-family: monospace; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #aaa; }
+        button { background: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.1s; }
+        button:hover { transform: scale(1.02); }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .btn-secondary { background: #4a4a6a; }
+        .hash-result { background: #0f0f23; padding: 12px; border-radius: 8px; margin-top: 12px; font-family: monospace; font-size: 13px; word-break: break-all; cursor: pointer; }
+        .hash-result:hover { background: #1a1a3e; }
+        .hash-label { color: #888; font-size: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .hash-value { color: #4ade80; }
+        .file-drop { border: 2px dashed #333; border-radius: 8px; padding: 30px; text-align: center; color: #888; cursor: pointer; transition: all 0.2s; }
+        .file-drop:hover, .file-drop.dragover { border-color: #e94560; background: rgba(233, 69, 96, 0.1); }
+        .file-name { color: #4ade80; margin-top: 10px; }
+        .mode-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .mode-toggle button { flex: 1; padding: 10px; }
+        .mode-toggle button.active { background: #e94560; }
+        .mode-toggle button:not(.active) { background: #4a4a6a; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>#️⃣ Hash Generator</h1>
+        <p class="subtitle">Generate MD5, SHA1, SHA256, SHA512 hashes</p>
+        
+        <div class="card">
+            <div class="mode-toggle">
+                <button class="active" onclick="setMode('text')" id="btnText">Text</button>
+                <button onclick="setMode('file')" id="btnFile">File</button>
+            </div>
+            
+            <div id="textMode">
+                <label>Enter text:</label>
+                <textarea id="input" placeholder="Type or paste text here..."></textarea>
+            </div>
+            
+            <div id="fileMode" style="display:none;">
+                <div class="file-drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div>📁 Click to select file or drag & drop</div>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+                <input type="file" id="fileInput" style="display:none;" onchange="handleFile()">
+            </div>
+            
+            <div class="btn-row">
+                <button onclick="generateHashes()">🔐 Generate Hashes</button>
+                <button class="btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+            </div>
+        </div>
+        
+        <div class="card" id="results">
+            <label>Hash Results:</label>
+            <div class="hash-label"><span>MD5</span><span style="cursor:pointer;" onclick="copyHash('md5')">📋</span></div>
+            <div class="hash-result" id="md5" onclick="copyHash('md5')"></div>
+            
+            <div class="hash-label"><span>SHA1</span><span style="cursor:pointer;" onclick="copyHash('sha1')">📋</span></div>
+            <div class="hash-result" id="sha1" onclick="copyHash('sha1')"></div>
+            
+            <div class="hash-label"><span>SHA-256</span><span style="cursor:pointer;" onclick="copyHash('sha256')">📋</span></div>
+            <div class="hash-result" id="sha256" onclick="copyHash('sha256')"></div>
+            
+            <div class="hash-label"><span>SHA-512</span><span style="cursor:pointer;" onclick="copyHash('sha512')">📋</span></div>
+            <div class="hash-result" id="sha512" onclick="copyHash('sha512')"></div>
+            
+            <div class="hash-label"><span>RIPEMD-160</span><span style="cursor:pointer;" onclick="copyHash('ripemd160')">📋</span></div>
+            <div class="hash-result" id="ripemd160" onclick="copyHash('ripemd160')"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'text';
+        let currentFile = null;
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('textMode').style.display = mode === 'text' ? 'block' : 'none';
+            document.getElementById('fileMode').style.display = mode === 'file' ? 'block' : 'none';
+            document.getElementById('btnText').className = mode === 'text' ? 'active' : '';
+            document.getElementById('btnFile').className = mode === 'file' ? 'active' : '';
+        }
+        
+        function handleFile() {
+            const input = document.getElementById('fileInput');
+            if (input.files.length > 0) {
+                currentFile = input.files[0];
+                document.getElementById('fileName').textContent = currentFile.name + ' (' + formatSize(currentFile.size) + ')';
+                generateHashes();
+            }
+        }
+        
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        
+        // Drag and drop
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                currentFile = e.dataTransfer.files[0];
+                document.getElementById('fileName').textContent = currentFile.name + ' (' + formatSize(currentFile.size) + ')';
+                generateHashes();
+            }
+        });
+
+        async function generateHashes() {
+            let content;
+            
+            if (currentMode === 'text') {
+                content = document.getElementById('input').value;
+                if (!content) return alert('Please enter some text');
+                generateTextHashes(content);
+            } else {
+                if (!currentFile) return;
+                const buffer = await currentFile.arrayBuffer();
+                const wordArray = CryptoJS.lib.WordArray.create(buffer);
+                generateBinaryHashes(wordArray);
+            }
+        }
+        
+        function generateTextHashes(text) {
+            document.getElementById('md5').textContent = CryptoJS.MD5(text).toString();
+            document.getElementById('sha1').textContent = CryptoJS.SHA1(text).toString();
+            document.getElementById('sha256').textContent = CryptoJS.SHA256(text).toString();
+            document.getElementById('sha512').textContent = CryptoJS.SHA512(text).toString();
+            document.getElementById('ripemd160').textContent = CryptoJS.RIPEMD160(text).toString();
+        }
+        
+        function generateBinaryHashes(data) {
+            document.getElementById('md5').textContent = CryptoJS.MD5(data).toString();
+            document.getElementById('sha1').textContent = CryptoJS.SHA1(data).toString();
+            document.getElementById('sha256').textContent = CryptoJS.SHA256(data).toString();
+            document.getElementById('sha512').textContent = CryptoJS.SHA512(data).toString();
+            document.getElementById('ripemd160').textContent = CryptoJS.RIPEMD160(data).toString();
+        }
+        
+        function copyHash(type) {
+            const text = document.getElementById(type).textContent;
+            if (text) {
+                navigator.clipboard.writeText(text);
+                showToast('Copied ' + type.toUpperCase() + ': ' + text.substring(0, 20) + '...');
+            }
+        }
+        
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:12px 24px;border-radius:8px;font-weight:600;z-index:1000;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+        
+        function clearAll() {
+            document.getElementById('input').value = '';
+            currentFile = null;
+            document.getElementById('fileName').textContent = '';
+            ['md5', 'sha1', 'sha256', 'sha512', 'ripemd160'].forEach(id => {
+                document.getElementById(id).textContent = '';
+            });
+        }
+    </script>
+</body>
+</html>
