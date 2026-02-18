@@ -42,6 +42,7 @@ No server, no installation, no dependencies!
 | image-compressor.html | 🖼️ Compress images in browser |
 | ascii-table.html | 📊 ASCII character table |
 | countdown.html | ⏱️ Countdown timer with presets |
+| lorem-ipsum.html | 📝 Generate placeholder text |
 
 ## Screenshots
 

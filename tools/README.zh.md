@@ -42,6 +42,7 @@ open webtoolkit.html
 | image-compressor.html | 🖼️ 圖片壓縮工具 |
 | ascii-table.html | 📊 ASCII 表查詢 |
 | countdown.html | ⏱️ 倒數計時器 |
+| lorem-ipsum.html | 📝 假文字產生器 |
 
 ## 截圖
 
