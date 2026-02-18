@@ -37,6 +37,9 @@ open webtoolkit.html
 | password-generator.html | 安全密碼產生器 |
 | text-diff.html | 文字比對差異工具 |
 | markdown-preview.html | Markdown 即時預覽 |
+| pomodoro.html | 🍅 專注計時器（25/5 工作法） |
+| quick-notes.html | 📝 簡單記事本（本地儲存） |
+| image-compressor.html | 🖼️ 圖片壓縮工具 |
 
 ## 截圖
 

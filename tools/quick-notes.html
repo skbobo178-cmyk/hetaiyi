@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes 📝</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1e1e1e; color: #ddd; margin: 0; height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: #252526; border-right: 1px solid #3c3c3c; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #3c3c3c; }
+        .sidebar-header h2 { font-size: 16px; color: #569cd6; }
+        .new-btn { background: #0e639c; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .new-btn:hover { background: #1177bb; }
+        .note-list { flex: 1; overflow-y: auto; }
+        .note-item { padding: 12px 15px; border-bottom: 1px solid #333; cursor: pointer; }
+        .note-item:hover { background: #2d2d30; }
+        .note-item.active { background: #37373d; border-left: 3px solid #569cd6; }
+        .note-item h4 { margin: 0 0 5px; font-size: 14px; }
+        .note-item p { margin: 0; font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .delete-btn { float: right; color: #f48771; cursor: pointer; }
+        .editor { flex: 1; display: flex; flex-direction: column; }
+        .editor-header { padding: 15px; border-bottom: 1px solid #3c3c3c; display: flex; justify-content: space-between; align-items: center; }
+        .editor-header input { background: transparent; border: none; color: #fff; font-size: 18px; width: 80%; }
+        .editor-header input:focus { outline: none; }
+        .editor-body { flex: 1; padding: 15px; }
+        textarea { width: 100%; height: 100%; background: transparent; border: none; color: #ddd; font-size: 14px; line-height: 1.6; resize: none; font-family: inherit; }
+        textarea:focus { outline: none; }
+        .empty { display: flex; align-items: center; justify-content: center; height: 100%; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📝 Quick Notes</h2>
+            <button class="new-btn" onclick="newNote()">+ New Note</button>
+        </div>
+        <div class="note-list" id="noteList"></div>
+    </div>
+    <div class="editor" id="editor">
+        <div class="empty">Select or create a note</div>
+    </div>
+    <script>
+        let notes = JSON.parse(localStorage.getItem('quickNotes') || '[]');
+        let activeNote = null;
+        
+        function save() {
+            localStorage.setItem('quickNotes', JSON.stringify(notes));
+            renderList();
+        }
+        
+        function renderList() {
+            const list = document.getElementById('noteList');
+            list.innerHTML = notes.map((n, i) => `
+                <div class="note-item ${activeNote === i ? 'active' : ''}" onclick="openNote(${i})">
+                    <span class="delete-btn" onclick="deleteNote(${i}, event)">✕</span>
+                    <h4>${n.title || 'Untitled'}</h4>
+                    <p>${n.content.substring(0, 50)}</p>
+                </div>
+            `).join('');
+        }
+        
+        function newNote() {
+            notes.unshift({ title: '', content: '', updated: Date.now() });
+            activeNote = 0;
+            save();
+            openEditor();
+            document.querySelector('.editor-header input').focus();
+        }
+        
+        function openNote(i) {
+            activeNote = i;
+            renderList();
+            openEditor();
+        }
+        
+        function openEditor() {
+            const note = notes[activeNote];
+            document.getElementById('editor').innerHTML = `
+                <div class="editor-header">
+                    <input value="${note.title}" placeholder="Title" oninput="updateTitle(this.value)">
+                    <span style="color:#666;font-size:12px">Auto-saved</span>
+                </div>
+                <div class="editor-body">
+                    <textarea placeholder="Start typing..." oninput="updateContent(this.value)">${note.content}</textarea>
+                </div>
+            `;
+        }
+        
+        function updateTitle(val) {
+            notes[activeNote].title = val;
+            notes[activeNote].updated = Date.now();
+            save();
+        }
+        
+        function updateContent(val) {
+            notes[activeNote].content = val;
+            notes[activeNote].updated = Date.now();
+            save();
+        }
+        
+        function deleteNote(i, e) {
+            e.stopPropagation();
+            if (confirm('Delete this note?')) {
+                notes.splice(i, 1);
+                activeNote = notes.length ? 0 : null;
+                save();
+                if (activeNote === null) {
+                    document.getElementById('editor').innerHTML = '<div class="empty">Select or create a note</div>';
+                } else {
+                    openEditor();
+                }
+            }
+        }
+        
+        renderList();
+    </script>
+</body>
+</html>

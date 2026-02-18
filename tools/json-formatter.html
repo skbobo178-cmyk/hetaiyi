@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter - Clean & Prettify</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a0a0a0;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy {
+            background: #ff6b6b;
+            color: #fff;
+        }
+        .btn-copy:hover { background: #ff5252; }
+        #output {
+            height: 200px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+        .status.success { 
+            background: rgba(78, 205, 196, 0.2); 
+            color: #4ecdc4;
+            display: block;
+        }
+        .status.error { 
+            background: rgba(255, 107, 107, 0.2); 
+            color: #ff6b6b;
+            display: block;
+        }
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 JSON Formatter & Validator</h1>
+        
+        <div class="card">
+            <label for="input">Paste your JSON here:</label>
+            <textarea id="input" placeholder='{"name": "John", "age": 30}'></textarea>
+            
+            <div class="options">
+                <label><input type="checkbox" id="minify" onclick="formatJSON()"> Minify</label>
+                <label><input type="checkbox" id="sortKeys" onclick="formatJSON()"> Sort Keys</label>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="formatJSON()">Format</button>
+                <button class="btn-secondary" onclick="validateJSON()">Validate</button>
+                <button class="btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label for="output">Result:</label>
+            <textarea id="output" readonly></textarea>
+            <div id="status" class="status"></div>
+            <div class="btn-group">
+                <button class="btn-copy" onclick="copyOutput()">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(msg, type) {
+            const el = document.getElementById('status');
+            el.textContent = msg;
+            el.className = 'status ' + type;
+            setTimeout(() => el.className = 'status', 3000);
+        }
+
+        function formatJSON() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) {
+                showStatus('Please enter some JSON', 'error');
+                return;
+            }
+            
+            try {
+                let obj = JSON.parse(input);
+                
+                if (document.getElementById('sortKeys').checked) {
+                    obj = sortKeys(obj);
+                }
+                
+                const minify = document.getElementById('minify').checked;
+                const result = minify ? JSON.stringify(obj) : JSON.stringify(obj, null, 2);
+                
+                document.getElementById('output').value = result;
+                showStatus('JSON formatted successfully!', 'success');
+            } catch (e) {
+                showStatus('Invalid JSON: ' + e.message, 'error');
+            }
+        }
+
+        function sortKeys(obj) {
+            if (Array.isArray(obj)) {
+                return obj.map(sortKeys);
+            }
+            if (obj && typeof obj === 'object') {
+                return Object.keys(obj).sort().reduce((result, key) => {
+                    result[key] = sortKeys(obj[key]);
+                    return result;
+                }, {});
+            }
+            return obj;
+        }
+
+        function validateJSON() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) {
+                showStatus('Please enter some JSON', 'error');
+                return;
+            }
+            
+            try {
+                JSON.parse(input);
+                showStatus('✅ Valid JSON!', 'success');
+                document.getElementById('output').value = 'Valid JSON';
+            } catch (e) {
+                showStatus('❌ Invalid JSON: ' + e.message, 'error');
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+            document.getElementById('status').className = 'status';
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('output');
+            if (!output.value) {
+                showStatus('Nothing to copy', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(output.value);
+            showStatus('Copied to clipboard!', 'success');
+        }
+    </script>
+</body>
+</html>

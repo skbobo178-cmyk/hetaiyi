@@ -37,6 +37,9 @@ No server, no installation, no dependencies!
 | password-generator.html | Secure password generator |
 | text-diff.html | Compare two texts, highlight differences |
 | markdown-preview.html | Write Markdown, preview in real-time |
+| pomodoro.html | 🍅 Focus timer (25/5 work intervals) |
+| quick-notes.html | 📝 Simple notes app (local storage) |
+| image-compressor.html | 🖼️ Compress images in browser |
 
 ## Screenshots
 

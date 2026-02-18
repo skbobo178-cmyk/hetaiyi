@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer 🍅</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { text-align: center; background: #16213e; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; }
+        .timer { font-size: 80px; font-weight: bold; margin: 20px 0; color: #e94560; }
+        .mode { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        button { padding: 15px 30px; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; transition: transform 0.2s; }
+        button:hover { transform: scale(1.05); }
+        .start { background: #e94560; color: white; }
+        .pause { background: #ffc107; color: #1a1a2e; }
+        .reset { background: #333; color: white; }
+        .settings { margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; }
+        .settings label { display: block; margin: 10px 0; color: #888; }
+        .settings input { width: 60px; padding: 5px; background: #0f3460; border: none; color: white; border-radius: 5px; text-align: center; }
+        .stats { margin-top: 20px; color: #888; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mode" id="mode">Work</div>
+        <div class="timer" id="timer">25:00</div>
+        <div class="buttons">
+            <button class="start" id="startBtn" onclick="toggleTimer()">Start</button>
+            <button class="reset" onclick="resetTimer()">Reset</button>
+        </div>
+        <div class="settings">
+            <label>Work: <input type="number" id="workTime" value="25" min="1" max="60"> min</label>
+            <label>Break: <input type="number" id="breakTime" value="5" min="1" max="30"> min</label>
+        </div>
+        <div class="stats">Sessions: <span id="sessions">0</span></div>
+    </div>
+    <script>
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+        let isBreak = false;
+        let interval = null;
+        let sessions = 0;
+        
+        function updateDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${m}:${s}`;
+            document.title = `${m}:${s} - Pomodoro`;
+        }
+        
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(interval);
+                document.getElementById('startBtn').textContent = 'Start';
+                document.getElementById('startBtn').classList.remove('pause');
+            } else {
+                interval = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        playSound();
+                        switchMode();
+                    }
+                }, 1000);
+                document.getElementById('startBtn').textContent = 'Pause';
+                document.getElementById('startBtn').classList.add('pause');
+            }
+            isRunning = !isRunning;
+        }
+        
+        function switchMode() {
+            clearInterval(interval);
+            isBreak = !isBreak;
+            timeLeft = (isBreak ? parseInt(document.getElementById('breakTime').value) : parseInt(document.getElementById('workTime').value)) * 60;
+            document.getElementById('mode').textContent = isBreak ? 'Break' : 'Work';
+            document.getElementById('timer').style.color = isBreak ? '#4caf50' : '#e94560';
+            isRunning = false;
+            document.getElementById('startBtn').textContent = 'Start';
+            document.getElementById('startBtn').classList.remove('pause');
+            if (!isBreak) { sessions++; document.getElementById('sessions').textContent = sessions; }
+            updateDisplay();
+        }
+        
+        function resetTimer() {
+            clearInterval(interval);
+            isRunning = false;
+            isBreak = false;
+            timeLeft = parseInt(document.getElementById('workTime').value) * 60;
+            document.getElementById('mode').textContent = 'Work';
+            document.getElementById('timer').style.color = '#e94560';
+            document.getElementById('startBtn').textContent = 'Start';
+            document.getElementById('startBtn').classList.remove('pause');
+            updateDisplay();
+        }
+        
+        function playSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.connect(ctx.destination);
+            osc.frequency.value = 800;
+            osc.start();
+            setTimeout(() => osc.stop(), 200);
+        }
+        
+        updateDisplay();
+    </script>
+</body>
+</html>
