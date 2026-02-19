@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔄 Base64 Encoder/Decoder</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        textarea { width: 100%; background: #0f0f23; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; min-height: 100px; resize: vertical; font-family: monospace; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #aaa; }
+        button { background: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.1s; }
+        button:hover { transform: scale(1.02); }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+        .btn-secondary { background: #4a4a6a; }
+        .arrow { text-align: center; font-size: 24px; color: #888; margin: 10px 0; }
+        .result { background: #0f0f23; padding: 15px; border-radius: 8px; margin-top: 15px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 13px; }
+        .error { color: #ff6b6b; }
+        .success { color: #4ade80; }
+        .mode-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .mode-toggle button { flex: 1; }
+        .mode-toggle button.active { background: #e94560; }
+        .mode-toggle button:not(.active) { background: #4a4a6a; }
+        .info { font-size: 12px; color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Base64 Encoder/Decoder</h1>
+        <p class="subtitle">Encode and decode Base64 strings</p>
+        
+        <div class="card">
+            <div class="mode-toggle">
+                <button class="active" onclick="setMode('encode')" id="encodeBtn">Encode</button>
+                <button onclick="setMode('decode')" id="decodeBtn">Decode</button>
+            </div>
+            
+            <div id="encodeMode">
+                <label>Text to Encode:</label>
+                <textarea id="inputEncode" placeholder="Enter text to encode..."></textarea>
+                <div class="btn-row">
+                    <button onclick="encode()">🔐 Encode to Base64</button>
+                    <button class="btn-secondary" onclick="clearInput('encode')">Clear</button>
+                </div>
+                <label>Encoded Result:</label>
+                <div class="result" id="outputEncode"></div>
+            </div>
+            
+            <div id="decodeMode" style="display:none;">
+                <label>Base64 to Decode:</label>
+                <textarea id="inputDecode" placeholder="Enter Base64 string..."></textarea>
+                <div class="btn-row">
+                    <button onclick="decode()">🔓 Decode from Base64</button>
+                    <button class="btn-secondary" onclick="clearInput('decode')">Clear</button>
+                </div>
+                <label>Decoded Result:</label>
+                <div class="result" id="outputDecode"></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Quick Actions:</label>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="urlEncode()">🔗 URL Encode</button>
+                <button class="btn-secondary" onclick="urlDecode()">🔗 URL Decode</button>
+                <button class="btn-secondary" onclick="htmlEncode()">&lt;/&gt; HTML Encode</button>
+                <button class="btn-secondary" onclick="htmlDecode()">&lt;/&gt; HTML Decode</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>UTF-8 Bytes Viewer:</label>
+            <textarea id="utf8Input" placeholder="Enter text to see UTF-8 bytes..." oninput="showUtf8()"></textarea>
+            <div class="result" id="utf8Output"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'encode';
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('encodeMode').style.display = mode === 'encode' ? 'block' : 'none';
+            document.getElementById('decodeMode').style.display = mode === 'decode' ? 'block' : 'none';
+            document.getElementById('encodeBtn').className = mode === 'encode' ? 'active' : '';
+            document.getElementById('decodeBtn').className = mode === 'decode' ? 'active' : '';
+        }
+        
+        function encode() {
+            const input = document.getElementById('inputEncode').value;
+            if (!input) return;
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                document.getElementById('outputEncode').textContent = encoded;
+                document.getElementById('outputEncode').className = 'result success';
+            } catch (e) {
+                document.getElementById('outputEncode').textContent = 'Error: ' + e.message;
+                document.getElementById('outputEncode').className = 'result error';
+            }
+        }
+        
+        function decode() {
+            const input = document.getElementById('inputDecode').value.trim();
+            if (!input) return;
+            try {
+                const decoded = decodeURIComponent(escape(atob(input)));
+                document.getElementById('outputDecode').textContent = decoded;
+                document.getElementById('outputDecode').className = 'result success';
+            } catch (e) {
+                document.getElementById('outputDecode').textContent = 'Error: Invalid Base64 string';
+                document.getElementById('outputDecode').className = 'result error';
+            }
+        }
+        
+        function urlEncode() {
+            const input = document.getElementById('inputEncode').value || document.getElementById('inputDecode').value;
+            if (!input) return;
+            const encoded = encodeURIComponent(input);
+            document.getElementById('outputEncode').textContent = encoded;
+            document.getElementById('outputEncode').className = 'result';
+        }
+        
+        function urlDecode() {
+            const input = document.getElementById('inputDecode').value || document.getElementById('inputEncode').value;
+            if (!input) return;
+            try {
+                const decoded = decodeURIComponent(input);
+                document.getElementById('outputDecode').textContent = decoded;
+                document.getElementById('outputDecode').className = 'result success';
+            } catch (e) {
+                document.getElementById('outputDecode').textContent = 'Error: ' + e.message;
+                document.getElementById('outputDecode').className = 'result error';
+            }
+        }
+        
+        function htmlEncode() {
+            const input = document.getElementById('inputEncode').value || document.getElementById('inputDecode').value;
+            if (!input) return;
+            const encoded = input.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            document.getElementById('outputEncode').textContent = encoded;
+            document.getElementById('outputEncode').className = 'result';
+        }
+        
+        function htmlDecode() {
+            const input = document.getElementById('inputDecode').value || document.getElementById('inputEncode').value;
+            if (!input) return;
+            const decoded = input.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+            document.getElementById('outputDecode').textContent = decoded;
+            document.getElementById('outputDecode').className = 'result';
+        }
+        
+        function showUtf8() {
+            const input = document.getElementById('utf8Input').value;
+            if (!input) {
+                document.getElementById('utf8Output').textContent = '';
+                return;
+            }
+            const bytes = [];
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(input);
+            for (let i = 0; i < encoded.length; i++) {
+                bytes.push(encoded[i]);
+            }
+            document.getElementById('utf8Output').textContent = 'Bytes: [' + bytes.join(', ') + ']\nHex: ' + Array.from(encoded).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        }
+        
+        function clearInput(mode) {
+            if (mode === 'encode') {
+                document.getElementById('inputEncode').value = '';
+                document.getElementById('outputEncode').textContent = '';
+            } else {
+                document.getElementById('inputDecode').value = '';
+                document.getElementById('outputDecode').textContent = '';
+            }
+        }
+        
+        // Auto-encode on Ctrl+Enter
+        document.getElementById('inputEncode').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) encode(); });
+        document.getElementById('inputDecode').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) decode(); });
+    </script>
+</body>
+</html>
