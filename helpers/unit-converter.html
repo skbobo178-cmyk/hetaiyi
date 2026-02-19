@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📏 Unit Converter</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { background: #0f0f23; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; color: #888; font-size: 14px; transition: all 0.2s; }
+        .tab:hover { background: #1a1a3e; }
+        .tab.active { background: #e94560; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        input, select { flex: 1; background: #0f0f23; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px; }
+        input { flex: 2; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #aaa; }
+        button { background: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.1s; }
+        button:hover { transform: scale(1.02); }
+        .result { background: #0f0f23; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
+        .result-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; }
+        .result-item:last-child { border-bottom: none; }
+        .result-label { color: #888; }
+        .result-value { color: #4ade80; cursor: pointer; }
+        .result-value:hover { color: #fff; }
+        .unit-select { background: #1a1a3e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📏 Unit Converter</h1>
+        <p class="subtitle">Convert length, weight, temperature, data, time</p>
+        
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('length')">📏 Length</button>
+                <button class="tab" onclick="showTab('weight')">⚖️ Weight</button>
+                <button class="tab" onclick="showTab('temp')">🌡️ Temp</button>
+                <button class="tab" onclick="showTab('data')">💾 Data</button>
+                <button class="tab" onclick="showTab('time')">⏰ Time</button>
+            </div>
+            
+            <div id="length" class="tab-content active">
+                <label>Length:</label>
+                <div class="row">
+                    <input type="number" id="lengthInput" value="1" oninput="convertLength()">
+                    <select id="lengthFrom" onchange="convertLength()" class="unit-select">
+                        <option value="m">Meter (m)</option>
+                        <option value="km">Kilometer (km)</option>
+                        <option value="cm">Centimeter (cm)</option>
+                        <option value="mm">Millimeter (mm)</option>
+                        <option value="mi">Mile (mi)</option>
+                        <option value="yd">Yard (yd)</option>
+                        <option value="ft">Foot (ft)</option>
+                        <option value="in">Inch (in)</option>
+                        <option value="nm">Nautical Mile (nmi)</option>
+                    </select>
+                </div>
+                <div class="result" id="lengthResult"></div>
+            </div>
+            
+            <div id="weight" class="tab-content">
+                <label>Weight:</label>
+                <div class="row">
+                    <input type="number" id="weightInput" value="1" oninput="convertWeight()">
+                    <select id="weightFrom" onchange="convertWeight()" class="unit-select">
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="g">Gram (g)</option>
+                        <option value="mg">Milligram (mg)</option>
+                        <option value="lb">Pound (lb)</option>
+                        <option value="oz">Ounce (oz)</option>
+                        <option value="ton">Metric Ton (t)</option>
+                    </select>
+                </div>
+                <div class="result" id="weightResult"></div>
+            </div>
+            
+            <div id="temp" class="tab-content">
+                <label>Temperature:</label>
+                <div class="row">
+                    <input type="number" id="tempInput" value="0" oninput="convertTemp()">
+                    <select id="tempFrom" onchange="convertTemp()" class="unit-select">
+                        <option value="c">Celsius (°C)</option>
+                        <option value="f">Fahrenheit (°F)</option>
+                        <option value="k">Kelvin (K)</option>
+                    </select>
+                </div>
+                <div class="result" id="tempResult"></div>
+            </div>
+            
+            <div id="data" class="tab-content">
+                <label>Data:</label>
+                <div class="row">
+                    <input type="number" id="dataInput" value="1" oninput="convertData()">
+                    <select id="dataFrom" onchange="convertData()" class="unit-select">
+                        <option value="b">Bytes</option>
+                        <option value="kb">Kilobytes (KB)</option>
+                        <option value="mb">Megabytes (MB)</option>
+                        <option value="gb">Gigabytes (GB)</option>
+                        <option value="tb">Terabytes (TB)</option>
+                        <option value="bit">Bits</option>
+                        <option value="kbit">Kilobits</option>
+                        <option value="mbit">Megabits</option>
+                        <option value="gbit">Gigabits</option>
+                    </select>
+                </div>
+                <div class="result" id="dataResult"></div>
+            </div>
+            
+            <div id="time" class="tab-content">
+                <label>Time:</label>
+                <div class="row">
+                    <input type="number" id="timeInput" value="1" oninput="convertTime()">
+                    <select id="timeFrom" onchange="convertTime()" class="unit-select">
+                        <option value="s">Seconds</option>
+                        <option value="m">Minutes</option>
+                        <option value="h">Hours</option>
+                        <option value="d">Days</option>
+                        <option value="w">Weeks</option>
+                        <option value="y">Years</option>
+                    </select>
+                </div>
+                <div class="result" id="timeResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        }
+
+        function copyValue(val) {
+            navigator.clipboard.writeText(val);
+            showToast('Copied: ' + val);
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:12px 24px;border-radius:8px;font-weight:600;z-index:1000;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        const lengthFactors = { m: 1, km: 1000, cm: 0.01, mm: 0.001, mi: 1609.344, yd: 0.9144, ft: 0.3048, in: 0.0254, nm: 1852 };
+        
+        function convertLength() {
+            const val = parseFloat(document.getElementById('lengthInput').value) || 0;
+            const from = document.getElementById('lengthFrom').value;
+            const base = val * lengthFactors[from];
+            const units = ['m', 'km', 'cm', 'mm', 'mi', 'yd', 'ft', 'in', 'nm'];
+            const names = { m: 'Meter', km: 'Kilometer', cm: 'Centimeter', mm: 'Millimeter', mi: 'Mile', yd: 'Yard', ft: 'Foot', in: 'Inch', nm: 'Nautical Mile' };
+            let html = units.map(u => {
+                const result = base / lengthFactors[u];
+                return `<div class="result-item"><span class="result-label">${names[u]}:</span><span class="result-value" onclick="copyValue('${result}')">${formatNum(result)} ${u}</span></div>`;
+            }).join('');
+            document.getElementById('lengthResult').innerHTML = html;
+        }
+
+        const weightFactors = { kg: 1, g: 0.001, mg: 0.000001, lb: 0.453592, oz: 0.0283495, ton: 1000 };
+        
+        function convertWeight() {
+            const val = parseFloat(document.getElementById('weightInput').value) || 0;
+            const from = document.getElementById('weightFrom').value;
+            const base = val * weightFactors[from];
+            const units = ['kg', 'g', 'mg', 'lb', 'oz', 'ton'];
+            const names = { kg: 'Kilogram', g: 'Gram', mg: 'Milligram', lb: 'Pound', oz: 'Ounce', ton: 'Metric Ton' };
+            let html = units.map(u => {
+                const result = base / weightFactors[u];
+                return `<div class="result-item"><span class="result-label">${names[u]}:</span><span class="result-value" onclick="copyValue('${result}')">${formatNum(result)} ${u}</span></div>`;
+            }).join('');
+            document.getElementById('weightResult').innerHTML = html;
+        }
+
+        function convertTemp() {
+            const val = parseFloat(document.getElementById('tempInput').value) || 0;
+            const from = document.getElementById('tempFrom').value;
+            let c;
+            if (from === 'c') c = val;
+            else if (from === 'f') c = (val - 32) * 5/9;
+            else c = val - 273.15;
+            
+            const f = c * 9/5 + 32;
+            const k = c + 273.15;
+            
+            const html = `
+                <div class="result-item"><span class="result-label">Celsius:</span><span class="result-value" onclick="copyValue('${c}')">${formatNum(c)} °C</span></div>
+                <div class="result-item"><span class="result-label">Fahrenheit:</span><span class="result-value" onclick="copyValue('${f}')">${formatNum(f)} °F</span></div>
+                <div class="result-item"><span class="result-label">Kelvin:</span><span class="result-value" onclick="copyValue('${k}')">${formatNum(k)} K</span></div>
+            `;
+            document.getElementById('tempResult').innerHTML = html;
+        }
+
+        const dataFactors = { b: 1, kb: 1024, mb: 1024**2, gb: 1024**3, tb: 1024**4, bit: 0.125, kbit: 128, mbit: 131072, gbit: 134217728 };
+        
+        function convertData() {
+            const val = parseFloat(document.getElementById('dataInput').value) || 0;
+            const from = document.getElementById('dataFrom').value;
+            const base = val * dataFactors[from];
+            const units = ['b', 'kb', 'mb', 'gb', 'tb', 'bit', 'kbit', 'mbit', 'gbit'];
+            const names = { b: 'Bytes', kb: 'Kilobytes', mb: 'Megabytes', gb: 'Gigabytes', tb: 'Terabytes', bit: 'Bits', kbit: 'Kilobits', mbit: 'Megabits', gbit: 'Gigabits' };
+            let html = units.map(u => {
+                const result = base / dataFactors[u];
+                return `<div class="result-item"><span class="result-label">${names[u]}:</span><span class="result-value" onclick="copyValue('${result}')">${formatNum(result)} ${u}</span></div>`;
+            }).join('');
+            document.getElementById('dataResult').innerHTML = html;
+        }
+
+        const timeFactors = { s: 1, m: 60, h: 3600, d: 86400, w: 604800, y: 31536000 };
+        
+        function convertTime() {
+            const val = parseFloat(document.getElementById('timeInput').value) || 0;
+            const from = document.getElementById('timeFrom').value;
+            const base = val * timeFactors[from];
+            const units = ['s', 'm', 'h', 'd', 'w', 'y'];
+            const names = { s: 'Seconds', m: 'Minutes', h: 'Hours', d: 'Days', w: 'Weeks', y: 'Years' };
+            let html = units.map(u => {
+                const result = base / timeFactors[u];
+                return `<div class="result-item"><span class="result-label">${names[u]}:</span><span class="result-value" onclick="copyValue('${result}')">${formatNum(result)} ${u}</span></div>`;
+            }).join('');
+            document.getElementById('timeResult').innerHTML = html;
+        }
+
+        function formatNum(n) {
+            if (Math.abs(n) < 0.0001 || Math.abs(n) > 999999999) return n.toExponential(4);
+            return Math.round(n * 1000000) / 1000000;
+        }
+
+        convertLength();
+    </script>
+</body>
+</html>

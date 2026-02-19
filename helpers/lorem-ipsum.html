@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 Lorem Ipsum Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .field { flex: 1; min-width: 120px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #aaa; font-size: 13px; }
+        input, select { width: 100%; background: #0f0f23; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px; }
+        input[type="number"] { padding: 10px; }
+        button { background: #e94560; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: transform 0.1s; }
+        button:hover { transform: scale(1.02); }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .btn-secondary { background: #4a4a6a; }
+        .result { background: #0f0f23; padding: 15px; border-radius: 8px; margin-top: 15px; white-space: pre-wrap; line-height: 1.6; max-height: 400px; overflow-y: auto; font-size: 14px; }
+        .presets { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .preset { background: #0f0f23; border: 1px solid #333; color: #888; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .preset:hover { border-color: #e94560; color: #fff; }
+        .preset.active { background: #e94560; color: white; border-color: #e94560; }
+        .options { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+        .options label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Lorem Ipsum Generator</h1>
+        <p class="subtitle">Generate placeholder text for design & development</p>
+        
+        <div class="card">
+            <label>Quick Presets:</label>
+            <div class="presets">
+                <button class="preset" onclick="applyPreset('short')">Short (1 para)</button>
+                <button class="preset" onclick="applyPreset('medium')">Medium (3 paras)</button>
+                <button class="preset" onclick="applyPreset('long')">Long (5 paras)</button>
+                <button class="preset" onclick="applyPreset('words')">50 Words</button>
+                <button class="preset" onclick="applyPreset('sentences')">10 Sentences</button>
+            </div>
+            
+            <div class="row">
+                <div class="field">
+                    <label>Type:</label>
+                    <select id="type" onchange="updateOptions()">
+                        <option value="paras">Paragraphs</option>
+                        <option value="sentences">Sentences</option>
+                        <option value="words">Words</option>
+                        <option value="bytes">Bytes</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Count:</label>
+                    <input type="number" id="count" value="3" min="1" max="100">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="field">
+                    <label>Start with:</label>
+                    <select id="start">
+                        <option value="classic">Classic Lorem Ipsum</option>
+                        <option value="bacon">Bacon Ipsum</option>
+                        <option value="hipster">Hipster Ipsum</option>
+                        <option value="zombie">Zombie Ipsum</option>
+                        <option value="cupcake">Cupcake Ipsum</option>
+                        <option value="pirate">Pirate Ipsum</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="options">
+                <label><input type="checkbox" id="startWithLorem" checked> Start with "Lorem..."</label>
+            </div>
+            
+            <div class="btn-row">
+                <button onclick="generate()">✨ Generate</button>
+                <button class="btn-secondary" onclick="copy()">📋 Copy</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Result:</label>
+            <div class="result" id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        const loremClassic = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum";
+        
+        const loremBacon = "bacon ipsum dolor amet pork belly turducken spare ribs ham hock beef ribs swine pork chop jerky ground round salami turkey beef shankle chuck pork loin prosciutto kevin capicola frankfurter sausage ribeye";
+        const loremHipster = "hexagon polaroid ugh blog wayfarers you probably haven't heard of them try disrupt beard tote bag fixie synth echo park sustainable actually YOLO";
+        const loremZombie = "Brains... aaargh shuffling moan groaning living dead hungry walk dead hmm lurching zombie appetite brains shuffling mm brains";
+        const loremCupcake = "caramels marshmallow croissant topping lemon drops cupcake chocolate cake candy canes wafer gummies chupa chups";
+        const loremPirate = "ahoy matey captain jack sparrow treasure chest doubloons gold Pieces of Eight cutlass swab the deck ho ho ho avast";
+
+        const wordsets = {
+            classic: loremClassic,
+            bacon: loremBacon,
+            hipster: loremHipster,
+            zombie: loremZombie,
+            cupcake: loremCupcake,
+            pirate: loremPirate
+        };
+
+        function applyPreset(preset) {
+            document.querySelectorAll('.preset').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const type = document.getElementById('type');
+            const count = document.getElementById('count');
+            
+            switch(preset) {
+                case 'short':
+                    type.value = 'paras';
+                    count.value = 1;
+                    break;
+                case 'medium':
+                    type.value = 'paras';
+                    count.value = 3;
+                    break;
+                case 'long':
+                    type.value = 'paras';
+                    count.value = 5;
+                    break;
+                case 'words':
+                    type.value = 'words';
+                    count.value = 50;
+                    break;
+                case 'sentences':
+                    type.value = 'sentences';
+                    count.value = 10;
+                    break;
+            }
+            generate();
+        }
+
+        function generate() {
+            const type = document.getElementById('type').value;
+            const count = parseInt(document.getElementById('count').value) || 1;
+            const startType = document.getElementById('start').value;
+            const startWithLorem = document.getElementById('startWithLorem').checked;
+            
+            let words = wordsets[startType].split(' ');
+            let result = '';
+            
+            if (type === 'paras') {
+                result = generateParagraphs(words, count, startWithLorem && startType === 'classic');
+            } else if (type === 'sentences') {
+                result = generateSentences(words, count, startWithLorem && startType === 'classic');
+            } else if (type === 'words') {
+                result = generateWords(words, count, startWithLorem && startType === 'classic');
+            } else if (type === 'bytes') {
+                result = generateBytes(count);
+            }
+            
+            document.getElementById('output').textContent = result;
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function generateParagraphs(words, count, startWithLorem) {
+            const paras = [];
+            let wordList = [...words];
+            
+            for (let p = 0; p < count; p++) {
+                // Each paragraph: 4-8 sentences
+                const numSentences = 4 + Math.floor(Math.random() * 5);
+                let para = '';
+                
+                for (let s = 0; s < numSentences; s++) {
+                    // Each sentence: 8-15 words
+                    const numWords = 8 + Math.floor(Math.random() * 8);
+                    let sentence = [];
+                    
+                    for (let w = 0; w < numWords; w++) {
+                        sentence.push(wordList[Math.floor(Math.random() * wordList.length)]);
+                    }
+                    
+                    let sentText = sentence.join(' ');
+                    // First sentence starts with capital
+                    if (p === 0 && s === 0 && startWithLorem) {
+                        sentText = 'Lorem ipsum dolor sit amet, ' + sentText;
+                    } else if (s === 0) {
+                        sentText = capitalize(sentText);
+                    }
+                    para += sentText + '. ';
+                }
+                paras.push(para.trim());
+            }
+            
+            return paras.join('\n\n');
+        }
+
+        function generateSentences(words, count, startWithLorem) {
+            let sentences = [];
+            
+            for (let s = 0; s < count; s++) {
+                const numWords = 8 + Math.floor(Math.random() * 8);
+                let sentence = [];
+                
+                for (let w = 0; w < numWords; w++) {
+                    sentence.push(words[Math.floor(Math.random() * words.length)]);
+                }
+                
+                let sentText = sentence.join(' ');
+                if (s === 0 && startWithLorem) {
+                    sentText = 'Lorem ipsum dolor sit amet, ' + sentText;
+                } else {
+                    sentText = capitalize(sentText);
+                }
+                sentences.push(sentText + '.');
+            }
+            
+            return sentences.join(' ');
+        }
+
+        function generateWords(words, count, startWithLorem) {
+            let result = [];
+            
+            for (let w = 0; w < count; w++) {
+                result.push(words[Math.floor(Math.random() * words.length)]);
+            }
+            
+            if (startWithLorem && result[0] !== 'lorem') {
+                result.unshift('lorem', 'ipsum');
+            }
+            
+            return result.join(' ');
+        }
+
+        function generateBytes(count) {
+            // Generate random ASCII text
+            let result = '';
+            for (let i = 0; i < count; i++) {
+                result += String.fromCharCode(32 + Math.floor(Math.random() * 95));
+            }
+            return result;
+        }
+
+        function copy() {
+            const text = document.getElementById('output').textContent;
+            if (text) {
+                navigator.clipboard.writeText(text);
+                showToast('Copied to clipboard!');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#4ade80;color:#000;padding:12px 24px;border-radius:8px;font-weight:600;z-index:1000;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function updateOptions() {
+            const type = document.getElementById('type').value;
+            const count = document.getElementById('count');
+            if (type === 'paras') count.value = 3;
+            else if (type === 'sentences') count.value = 10;
+            else if (type === 'words') count.value = 50;
+            else if (type === 'bytes') count.value = 256;
+        }
+
+        generate();
+    </script>
+</body>
+</html>
