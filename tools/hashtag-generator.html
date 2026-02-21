@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashtag Generator - Social Media Tools</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a0a0a0;
+        }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy {
+            background: #ff6b6b;
+            color: #fff;
+        }
+        .btn-copy:hover { background: #ff5252; }
+        
+        .hashtags {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+            font-size: 14px;
+            line-height: 1.8;
+            word-break: break-all;
+        }
+        .hashtags .tag {
+            color: #4ecdc4;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        .hashtags .tag:hover {
+            text-decoration: underline;
+        }
+        
+        .platform-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .platform-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .platform-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .platform-btn.active {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.2);
+        }
+        
+        .suggestions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .suggestion {
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion:hover {
+            background: rgba(78, 205, 196, 0.4);
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        .stat .label {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .category-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .category {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .category:hover, .category.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .trending {
+            background: rgba(255,107,107,0.1);
+            border: 1px solid rgba(255,107,107,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .trending h4 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+        .trending-tag {
+            display: inline-block;
+            background: rgba(255,107,107,0.2);
+            color: #ff6b6b;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>#️⃣ Hashtag Generator</h1>
+        <p class="subtitle">Generate trending hashtags for your content</p>
+        
+        <div class="card">
+            <label>Select Platform</label>
+            <div class="platform-select">
+                <button class="platform-btn active" onclick="setPlatform('twitter')">Twitter/X</button>
+                <button class="platform-btn" onclick="setPlatform('instagram')">Instagram</button>
+                <button class="platform-btn" onclick="setPlatform('tiktok')">TikTok</button>
+                <button class="platform-btn" onclick="setPlatform('youtube')">YouTube</button>
+                <button class="platform-btn" onclick="setPlatform('linkedin')">LinkedIn</button>
+            </div>
+            
+            <label>Enter Keywords (comma separated)</label>
+            <input type="text" id="keywords" placeholder="e.g., AI, marketing, productivity">
+            
+            <label>Category</label>
+            <div class="category-tags">
+                <button class="category active" onclick="setCategory('tech')">Tech</button>
+                <button class="category" onclick="setCategory('business')">Business</button>
+                <button class="category" onclick="setCategory('lifestyle')">Lifestyle</button>
+                <button class="category" onclick="setCategory('entertainment')">Entertainment</button>
+                <button class="category" onclick="setCategory('education')">Education</button>
+                <button class="category" onclick="setCategory('health')">Health</button>
+            </div>
+            
+            <label>Number of Hashtags</label>
+            <input type="range" id="count" min="5" max="30" value="15" oninput="updateCount()">
+            <span id="countDisplay" style="color: #4ecdc4; margin-left: 10px;">15</span>
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="generateHashtags()">Generate Hashtags</button>
+                <button class="btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Generated Hashtags</label>
+            <div class="hashtags" id="result">
+                <span style="color: #a0a0a0;">Click "Generate Hashtags" to create tags...</span>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="number" id="tagCount">0</div>
+                    <div class="label">Hashtags</div>
+                </div>
+                <div class="stat">
+                    <div class="number" id="charCount">0</div>
+                    <div class="label">Characters</div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-copy" onclick="copyHashtags()">Copy All</button>
+                <button class="btn-secondary" onclick="copyRandom()">Copy Random 5</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Quick Suggestions</label>
+            <div class="suggestions" id="suggestions">
+                <span class="suggestion" onclick="addKeyword('AI')">AI</span>
+                <span class="suggestion" onclick="addKeyword('tech')">tech</span>
+                <span class="suggestion" onclick="addKeyword('startup')">startup</span>
+                <span class="suggestion" onclick="addKeyword('marketing')">marketing</span>
+                <span class="suggestion" onclick="addKeyword('productivity')">productivity</span>
+                <span class="suggestion" onclick="addKeyword('money')">money</span>
+                <span class="suggestion" onclick="addKeyword('success')">success</span>
+                <span class="suggestion" onclick="addKeyword('growth')">growth</span>
+            </div>
+        </div>
+        
+        <div class="trending">
+            <h4>🔥 Trending Categories</h4>
+            <span class="trending-tag" onclick="setCategory('tech');generateHashtags()">#Tech</span>
+            <span class="trending-tag" onclick="document.getElementById('keywords').value='AI automation';generateHashtags()">#AIAutomation</span>
+            <span class="trending-tag" onclick="document.getElementById('keywords').value='side hustle';generateHashtags()">#SideHustle</span>
+            <span class="trending-tag" onclick="document.getElementById('keywords').value='passive income';generateHashtags()">#PassiveIncome</span>
+            <span class="trending-tag" onclick="setCategory('business');generateHashtags()">#Business</span>
+        </div>
+    </div>
+
+    <script>
+        let currentPlatform = 'twitter';
+        let currentCategory = 'tech';
+        let generatedTags = [];
+        
+        const hashtagBanks = {
+            tech: ['AI', 'tech', 'technology', 'innovation', 'digital', 'future', 'software', 'coding', 'programming', 'developer', 'startup', 'app', 'web3', 'blockchain', 'cloud', 'data', 'machinelearning', 'automation', 'robotics', 'smart'],
+            business: ['business', 'entrepreneur', 'startup', 'success', 'motivation', 'leadership', 'management', 'strategy', 'growth', 'hustle', 'money', 'finance', 'investment', 'branding', 'marketing', 'sales', 'career', 'goals', 'mindset', 'wealth'],
+            lifestyle: ['lifestyle', 'life', 'motivation', 'inspiration', 'goals', 'success', 'mindset', 'health', 'wellness', 'fitness', 'travel', 'food', 'fashion', 'beauty', 'home', 'family', 'love', 'happiness', 'balance', 'selfcare'],
+            entertainment: ['entertainment', 'fun', 'viral', 'trending', 'memes', 'humor', 'comedy', 'music', 'movie', 'gaming', 'stream', 'content', 'creator', 'fyp', 'foryou', 'viral', 'trending', 'popular', 'famous'],
+            education: ['education', 'learning', 'tutorial', 'tips', 'howto', 'guide', 'course', 'study', 'knowledge', 'skill', 'teaching', 'coach', 'mentor', 'workshop', 'webinar', 'book', 'read', 'learn', 'grow', 'develop'],
+            health: ['health', 'wellness', 'fitness', 'workout', 'exercise', 'nutrition', 'diet', 'mentalhealth', 'selfcare', 'mindfulness', 'meditation', 'yoga', 'sleep', 'energy', 'vitality', 'healing', 'organic', 'natural', 'wellbeing', 'lifestyle']
+        };
+        
+        const platformEmojis = {
+            twitter: '',
+            instagram: '',
+            tiktok: '',
+            youtube: '',
+            linkedin: ''
+        };
+        
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function updateCount() {
+            document.getElementById('countDisplay').textContent = document.getElementById('count').value;
+        }
+        
+        function generateHashtags() {
+            const keywords = document.getElementById('keywords').value.split(',').map(k => k.trim()).filter(k => k);
+            const count = parseInt(document.getElementById('count').value);
+            
+            // Get base tags from category
+            let tags = [...hashtagBanks[currentCategory] || hashtagBanks.tech];
+            
+            // Add keyword-based tags
+            keywords.forEach(kw => {
+                const lower = kw.toLowerCase();
+                if (!tags.includes(lower)) tags.push(lower);
+                // Add variations
+                tags.push(lower + 'tips');
+                tags.push(lower + 'life');
+                tags.push(lower + 'daily');
+            });
+            
+            // Add platform-specific tags
+            const platformTags = {
+                twitter: ['twitter', 'x', 'tweet', 'thread', 'techtwitter', 'coding'],
+                instagram: ['instagram', 'instagood', 'photooftheday', 'instadaily', 'reels'],
+                tiktok: ['tiktok', 'fyp', 'foryoupage', 'viral', 'tiktokindia'],
+                youtube: ['youtube', 'youtuber', 'video', 'subscribe', 'youtubers'],
+                linkedin: ['linkedin', 'professional', 'networking', 'career', 'business']
+            };
+            
+            tags = [...tags, ...platformTags[currentPlatform]];
+            
+            // Add trending modifiers
+            const modifiers = ['tips', 'hack', 'life', 'daily', 'goals', 'motivation', 'success', '2026', 'trending'];
+            modifiers.forEach(m => tags.push(m));
+            
+            // Shuffle and pick
+            tags = shuffleArray([...new Set(tags)]).slice(0, count);
+            
+            generatedTags = tags;
+            renderTags();
+        }
+        
+        function renderTags() {
+            const result = document.getElementById('result');
+            if (generatedTags.length === 0) {
+                result.innerHTML = '<span style="color: #a0a0a0;">Click "Generate Hashtags" to create tags...</span>';
+                return;
+            }
+            
+            result.innerHTML = generatedTags.map(tag => `<span class="tag" onclick="copyOne('#${tag}')">#${tag}</span>`).join('');
+            updateStats();
+        }
+        
+        function updateStats() {
+            const text = generatedTags.map(t => '#' + t).join(' ');
+            document.getElementById('tagCount').textContent = generatedTags.length;
+            document.getElementById('charCount').textContent = text.length;
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function copyHashtags() {
+            const text = generatedTags.map(t => '#' + t).join(' ');
+            navigator.clipboard.writeText(text);
+            alert('All hashtags copied!');
+        }
+        
+        function copyOne(tag) {
+            navigator.clipboard.writeText(tag);
+        }
+        
+        function copyRandom() {
+            const shuffled = shuffleArray([...generatedTags]);
+            const random5 = shuffled.slice(0, 5).map(t => '#' + t).join(' ');
+            navigator.clipboard.writeText(random5);
+            alert('5 random hashtags copied!');
+        }
+        
+        function addKeyword(kw) {
+            const input = document.getElementById('keywords');
+            if (input.value) {
+                input.value += ', ' + kw;
+            } else {
+                input.value = kw;
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('keywords').value = '';
+            generatedTags = [];
+            renderTags();
+        }
+    </script>
+</body>
+</html>
