@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTA Generator - Call to Action Builder</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #4ecdc4; color: #1a1a2e; }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .cta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .cta-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .cta-box:hover {
+            background: rgba(78, 205, 196, 0.1);
+            border-color: #4ecdc4;
+            transform: translateY(-3px);
+        }
+        .cta-box .cta-type {
+            color: #4ecdc4;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .cta-box .cta-text {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .platform-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .platform-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .platform-tab:hover, .platform-tab.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .category-section {
+            margin-bottom: 20px;
+        }
+        .category-title {
+            color: #4ecdc4;
+            font-size: 16px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .input-group input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        
+        .custom-cta {
+            background: rgba(78, 205, 196, 0.1);
+            border: 2px dashed #4ecdc4;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .custom-cta h4 { color: #4ecdc4; margin-bottom: 10px; }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #4ecdc4; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 CTA Generator</h1>
+        <p class="subtitle">Call-to-Action templates for maximum engagement</p>
+        
+        <div class="card">
+            <label>Quick Filters</label>
+            <div class="platform-tabs">
+                <button class="platform-tab active" onclick="filterBy('all')">All</button>
+                <button class="platform-tab" onclick="filterBy('engagement')">Engagement</button>
+                <button class="platform-tab" onclick="filterBy('traffic')">Traffic</button>
+                <button class="platform-tab" onclick="filterBy('conversion')">Sales</button>
+                <button class="platform-tab" onclick="filterBy('viral')">Viral</button>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="customWord" placeholder="Add a custom word/phrase (e.g., 'this thread', 'my course')">
+                <button class="btn-primary" onclick="customizeCTA()">Customize</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="ctaContainer">
+                <!-- CTAs will be rendered here -->
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="stats">
+                <div class="stat">
+                    <div class="number" id="totalCTAs">0</div>
+                    <div class="label">CTAs Available</div>
+                </div>
+                <div class="stat">
+                    <div class="number" id="engagementCTAs">0</div>
+                    <div class="label">Engagement</div>
+                </div>
+                <div class="stat">
+                    <div class="number" id="viralCTAs">0</div>
+                    <div class="label">Viral</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card custom-cta">
+            <h4>💡 Creating Effective CTAs</h4>
+            <ul style="text-align: left; padding-left: 20px; color: #ccc; line-height: 1.8;">
+                <li><strong>Be specific:</strong> "Retweet if..." works better than "Share"</li>
+                <li><strong>Create urgency:</strong> "Before you forget..." or "Limited time..."</li>
+                <li><strong>Offer value:</strong> "Follow for daily tips on [topic]"</li>
+                <li><strong>Ask questions:</strong> "What's your take? Comment below"</li>
+                <li><strong>Use social proof:</strong> "200+ people already liked this"</li>
+                <li><strong>Match the content:</strong> CTA should flow naturally from your post</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const ctaDatabase = {
+            engagement: [
+                { text: "Retweet if this helped! 🔁", type: "engagement" },
+                { text: "Like if you agree ❤️", type: "engagement" },
+                { text: "Follow for more tips! 🚀", type: "engagement" },
+                { text: "What's your take? Comment below 👇", type: "engagement" },
+                { text: "Save this for later 📌", type: "engagement" },
+                { text: "Share with someone who needs this 🔄", type: "engagement" },
+                { text: "Follow for daily [topic] content 📱", type: "engagement" },
+                { text: "Drop a 🙌 if you've been through this", type: "engagement" },
+                { text: "Reply with your thoughts 💭", type: "engagement" },
+                { text: "Tag a friend who should see this 👯", type: "engagement" },
+                { text: "Quote tweet with your experience 💬", type: "engagement" },
+                { text: "Turn on notifications 🔔", type: "engagement" },
+                { text: "Retweet to your feed ⬆️", type: "engagement" },
+                { text: "Double tap if you agree ❤️❤️", type: "engagement" },
+                { text: "Save this before you scroll away 🔖", type: "engagement" }
+            ],
+            traffic: [
+                { text: "Link in bio for the full guide 🔗", type: "traffic" },
+                { text: "Check my previous thread for more 📖", type: "traffic" },
+                { text: "Read the full article at [link] 📄", type: "traffic" },
+                { text: "Full video on my channel 🎥", type: "traffic" },
+                { text: "Check my website for more → [link]", type: "traffic" },
+                { text: "Swipe to see more in my highlights 💫", type: "traffic" },
+                { text: "Link in bio to get the free [resource] 🎁", type: "traffic" },
+                { text: "Full thread on my profile ⬆️", type: "traffic" },
+                { text: "Watch part 2 by clicking my profile 📺", type: "traffic" },
+                { text: "Get the complete guide at [website] 🌐", type: "traffic" }
+            ],
+            conversion: [
+                { text: "Get [product] at 50% off - link in bio 🎁", type: "conversion" },
+                { text: "DM 'READY' to get started 💬", type: "conversion" },
+                { text: "Sign up for my free course → [link] 📚", type: "conversion" },
+                { text: "Limited time offer - don't miss out! ⏰", type: "conversion" },
+                { text: "Book a call via the link below 📞", type: "conversion" },
+                { text: "Join 500+ others in my community 👥", type: "conversion" },
+                { text: "Download your free [resource] now ⬇️", type: "conversion" },
+                { text: "Get exclusive access - link in bio 🔐", type: "conversion" },
+                { text: "Start your journey today → [link] 🌟", type: "conversion" },
+                { text: "Special offer for my followers only 🎉", type: "conversion" }
+            ],
+            viral: [
+                { text: "🧵 Save this thread - it will be deleted soon", type: "viral" },
+                { text: "This is too good not to share 🔥", type: "viral" },
+                { text: "If this reaches 1000 likes, I'll reveal [secret] ✨", type: "viral" },
+                { text: "Don't scroll past this without saving 💾", type: "viral" },
+                { text: "This changed my life. It could change yours too. 🚀", type: "viral" },
+                { text: "POV: When you discover [topic] 💡", type: "viral" },
+                { text: "Wait for it... 🧵⬇️", type: "viral" },
+                { text: "If you see this, it's meant for you ✨", type: "viral" },
+                { text: "Bookmark before you forget! 🔖", type: "viral" },
+                { text: "This went viral for a reason 📈", type: "viral" },
+                { text: "Repost or you're blocking growth ❌", type: "viral" },
+                { text: "Share before it gets buried 📉", type: "viral" }
+            ]
+        };
+        
+        let currentFilter = 'all';
+        let customWord = '';
+        
+        function renderCTAs(filter = 'all') {
+            const container = document.getElementById('ctaContainer');
+            let allCTAs = [];
+            
+            if (filter === 'all') {
+                Object.values(ctaDatabase).forEach(group => {
+                    allCTAs = [...allCTAs, ...group];
+                });
+            } else {
+                allCTAs = ctaDatabase[filter] || [];
+            }
+            
+            // Apply custom word if set
+            if (customWord) {
+                allCTAs = allCTAs.map(cta => ({
+                    ...cta,
+                    text: cta.text.replace(/\[topic\]/g, customWord).replace(/\[product\]/g, customWord).replace(/\[resource\]/g, customWord)
+                }));
+            }
+            
+            if (allCTAs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #a0a0a0;">No CTAs found</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="cta-grid">
+                    ${allCTAs.map((cta, i) => `
+                        <div class="cta-box" onclick="copyCTA('${escapeHtml(cta.text)}')">
+                            <div class="cta-type">${cta.type}</div>
+                            <div class="cta-text">${cta.text}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            updateStats();
+        }
+        
+        function filterBy(type) {
+            currentFilter = type;
+            document.querySelectorAll('.platform-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCTAs(type);
+        }
+        
+        function customizeCTA() {
+            const input = document.getElementById('customWord');
+            customWord = input.value.trim();
+            renderCTAs(currentFilter);
+        }
+        
+        function copyCTA(text) {
+            navigator.clipboard.writeText(text);
+            // Visual feedback
+            const boxes = document.querySelectorAll('.cta-box');
+            boxes.forEach(box => {
+                if (box.querySelector('.cta-text').textContent === text) {
+                    box.style.background = 'rgba(78, 205, 196, 0.3)';
+                    setTimeout(() => box.style.background = '', 300);
+                }
+            });
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function updateStats() {
+            let all = 0;
+            Object.values(ctaDatabase).forEach(group => all += group.length);
+            document.getElementById('totalCTAs').textContent = all;
+            document.getElementById('engagementCTAs').textContent = ctaDatabase.engagement.length;
+            document.getElementById('viralCTAs').textContent = ctaDatabase.viral.length;
+        }
+        
+        // Initial render
+        renderCTAs();
+    </script>
+</body>
+</html>
