@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Planner - Social Media Scheduler</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a0a0a0;
+        }
+        input, textarea, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-danger {
+            background: #ff6b6b;
+            color: #fff;
+        }
+        .btn-danger:hover { background: #ff5252; }
+        
+        .idea-box {
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .idea-box:hover {
+            background: rgba(78, 205, 196, 0.2);
+            transform: translateX(5px);
+        }
+        .idea-box .topic {
+            font-weight: 600;
+            color: #4ecdc4;
+            margin-bottom: 5px;
+        }
+        .idea-box .hook {
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .schedule-list {
+            list-style: none;
+        }
+        .schedule-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .schedule-item .time {
+            color: #4ecdc4;
+            font-weight: 600;
+        }
+        .schedule-item .content {
+            flex: 1;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        .schedule-item .delete {
+            color: #ff6b6b;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .tab.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .hidden { display: none; }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        .stat .label {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        
+        .platform-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .platform-tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .platform-tag.twitter { background: #1da1f2; }
+        .platform-tag.instagram { background: #e1306c; }
+        .platform-tag.tiktok { background: #000; border: 1px solid #fff; }
+        .platform-tag.youtube { background: #ff0000; }
+        .platform-tag.selected {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 10px rgba(78,205,196,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Content Planner & Scheduler</h1>
+        <p class="subtitle">Plan, organize, and schedule your social media content</p>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('ideas')">💡 Ideas</button>
+            <button class="tab" onclick="showTab('schedule')">📆 Schedule</button>
+            <button class="tab" onclick="showTab('stats')">📊 Stats</button>
+        </div>
+        
+        <!-- Ideas Tab -->
+        <div id="ideas" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <h3>Generate New Ideas</h3>
+                    <label>Niche/Topic</label>
+                    <input type="text" id="niche" placeholder="e.g., AI tools, productivity, tech">
+                    
+                    <label>Content Type</label>
+                    <select id="contentType">
+                        <option value="educational">Educational/Tips</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="inspirational">Inspirational</option>
+                        <option value="controversial">Controversial/Hot Take</option>
+                        <option value="story">Story/Experience</option>
+                    </select>
+                    
+                    <label>Platform</label>
+                    <div class="platform-tags">
+                        <span class="platform-tag twitter selected" data-platform="twitter" onclick="togglePlatform(this)">Twitter</span>
+                        <span class="platform-tag instagram" data-platform="instagram" onclick="togglePlatform(this)">Instagram</span>
+                        <span class="platform-tag tiktok" data-platform="tiktok" onclick="togglePlatform(this)">TikTok</span>
+                        <span class="platform-tag youtube" data-platform="youtube" onclick="togglePlatform(this)">YouTube</span>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="generateIdeas()">Generate Ideas</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Your Ideas</h3>
+                    <div id="ideasList">
+                        <p style="color: #a0a0a0; text-align: center; padding: 20px;">No ideas yet. Generate some!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Quick Add</h3>
+                <div class="grid">
+                    <div>
+                        <label>Topic</label>
+                        <input type="text" id="quickTopic" placeholder="Main topic">
+                    </div>
+                    <div>
+                        <label>Hook/Title</label>
+                        <input type="text" id="quickHook" placeholder="Attention-grabbing hook">
+                    </div>
+                </div>
+                <label>Full Content</label>
+                <textarea id="quickContent" placeholder="Write your content here..."></textarea>
+                <button class="btn-primary" onclick="addQuickIdea()">Add to Ideas</button>
+            </div>
+        </div>
+        
+        <!-- Schedule Tab -->
+        <div id="schedule" class="tab-content hidden">
+            <div class="card">
+                <h3>Schedule Content</h3>
+                <div class="grid">
+                    <div>
+                        <label>Select Idea</label>
+                        <select id="scheduleIdea"></select>
+                    </div>
+                    <div>
+                        <label>Date</label>
+                        <input type="date" id="scheduleDate">
+                    </div>
+                    <div>
+                        <label>Time</label>
+                        <input type="time" id="scheduleTime" value="09:00">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="scheduleContent()">Schedule It</button>
+            </div>
+            
+            <div class="card">
+                <h3>Scheduled Posts</h3>
+                <ul class="schedule-list" id="scheduleList">
+                    <p style="color: #a0a0a0; text-align: center; padding: 20px;">No scheduled posts yet</p>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Stats Tab -->
+        <div id="stats" class="tab-content hidden">
+            <div class="card">
+                <div class="stats">
+                    <div class="stat">
+                        <div class="number" id="totalIdeas">0</div>
+                        <div class="label">Total Ideas</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="scheduledCount">0</div>
+                        <div class="label">Scheduled</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="postedCount">0</div>
+                        <div class="label">Posted</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="thisWeek">0</div>
+                        <div class="label">This Week</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Export Data</h3>
+                <button class="btn-secondary" onclick="exportData()">Export as JSON</button>
+                <button class="btn-secondary" onclick="clearAllData()">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ideas = JSON.parse(localStorage.getItem('contentIdeas') || '[]');
+        let schedule = JSON.parse(localStorage.getItem('contentSchedule') || '[]');
+        let selectedPlatforms = ['twitter'];
+        
+        // Set default date to today
+        document.getElementById('scheduleDate').value = new Date().toISOString().split('T')[0];
+        
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+            event.target.classList.add('active');
+            if (tabId === 'stats') updateStats();
+            if (tabId === 'schedule') updateScheduleDropdown();
+        }
+        
+        function togglePlatform(el) {
+            const platform = el.dataset.platform;
+            if (selectedPlatforms.includes(platform)) {
+                selectedPlatforms = selectedPlatforms.filter(p => p !== platform);
+                el.classList.remove('selected');
+            } else {
+                selectedPlatforms.push(platform);
+                el.classList.add('selected');
+            }
+        }
+        
+        const ideaTemplates = {
+            educational: [
+                "5 {niche} tips that will change your life",
+                "The ultimate guide to {niche}",
+                "Stop making these {niche} mistakes",
+                "What nobody tells you about {niche}",
+                "Learn this {niche} skill in 30 days"
+            ],
+            entertainment: [
+                "POV: You're obsessed with {niche}",
+                "When {niche} hits different",
+                "The most underrated {niche} trend",
+                "Controversial opinion: {niche} is overrated",
+                "Wait for it... {niche} edition"
+            ],
+            inspirational: [
+                "How I mastered {niche} in 1 year",
+                "From zero to hero with {niche}",
+                "If you want to succeed in {niche}, read this",
+                "The {niche} mindset shift you need",
+                "Don't give up on {niche}"
+            ],
+            controversial: [
+                "Why {niche} is actually bad for you",
+                "The truth about {niche} that experts hide",
+                "Stop believing these {niche} myths",
+                "{niche} is dead. Here's what's next",
+                "Why I quit {niche}"
+            ],
+            story: [
+                "My {niche} journey - from beginner to pro",
+                "The day that changed my {niche} career",
+                "I tried {niche} for 30 days. Here's what happened",
+                "The biggest mistake I made with {niche}",
+                "What I wish I knew about {niche} earlier"
+            ]
+        };
+        
+        function generateIdeas() {
+            const niche = document.getElementById('niche').value.trim() || 'tech';
+            const type = document.getElementById('contentType').value;
+            const templates = ideaTemplates[type];
+            
+            const newIdeas = [];
+            for (let i = 0; i < 5; i++) {
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                const hook = template.replace('{niche}', niche);
+                
+                const idea = {
+                    id: Date.now() + i,
+                    topic: niche,
+                    hook: hook,
+                    content: '',
+                    platforms: [...selectedPlatforms],
+                    created: new Date().toISOString(),
+                    status: 'idea'
+                };
+                
+                ideas.push(idea);
+                newIdeas.push(idea);
+            }
+            
+            saveData();
+            renderIdeas();
+        }
+        
+        function renderIdeas() {
+            const container = document.getElementById('ideasList');
+            if (ideas.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">No ideas yet. Generate some!</p>';
+                return;
+            }
+            
+            container.innerHTML = ideas.slice().reverse().map(idea => `
+                <div class="idea-box" onclick="selectIdea(${idea.id})">
+                    <div class="topic">${idea.topic}</div>
+                    <div class="hook">${idea.hook}</div>
+                    <div class="platform-tags" style="margin-top: 8px;">
+                        ${idea.platforms.map(p => `<span class="platform-tag ${p}">${p}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function addQuickIdea() {
+            const topic = document.getElementById('quickTopic').value.trim();
+            const hook = document.getElementById('quickHook').value.trim();
+            const content = document.getElementById('quickContent').value.trim();
+            
+            if (!topic || !hook) {
+                alert('Please fill in topic and hook');
+                return;
+            }
+            
+            const idea = {
+                id: Date.now(),
+                topic,
+                hook,
+                content,
+                platforms: [...selectedPlatforms],
+                created: new Date().toISOString(),
+                status: 'idea'
+            };
+            
+            ideas.push(idea);
+            saveData();
+            renderIdeas();
+            
+            document.getElementById('quickTopic').value = '';
+            document.getElementById('quickHook').value = '';
+            document.getElementById('quickContent').value = '';
+        }
+        
+        function selectIdea(id) {
+            const idea = ideas.find(i => i.id === id);
+            if (idea && idea.content) {
+                navigator.clipboard.writeText(idea.content || idea.hook);
+                alert('Content copied to clipboard!');
+            }
+        }
+        
+        function updateScheduleDropdown() {
+            const select = document.getElementById('scheduleIdea');
+            const availableIdeas = ideas.filter(i => !schedule.find(s => s.ideaId === i.id));
+            
+            select.innerHTML = availableIdeas.map(idea => 
+                `<option value="${idea.id}">${idea.hook}</option>`
+            ).join('');
+        }
+        
+        function scheduleContent() {
+            const ideaId = parseInt(document.getElementById('scheduleIdea').value);
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
+            
+            if (!ideaId || !date || !time) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const idea = ideas.find(i => i.id === ideaId);
+            if (!idea) return;
+            
+            schedule.push({
+                id: Date.now(),
+                ideaId: idea.id,
+                hook: idea.hook,
+                content: idea.content,
+                platforms: idea.platforms,
+                scheduledFor: `${date}T${time}:00`,
+                status: 'scheduled'
+            });
+            
+            localStorage.setItem('contentSchedule', JSON.stringify(schedule));
+            renderScheduleList();
+            alert('Content scheduled!');
+        }
+        
+        function renderScheduleList() {
+            const container = document.getElementById('scheduleList');
+            
+            if (schedule.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">No scheduled posts yet</p>';
+                return;
+            }
+            
+            const sorted = [...schedule].sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor));
+            
+            container.innerHTML = sorted.map(item => {
+                const date = new Date(item.scheduledFor);
+                const dateStr = date.toLocaleDateString();
+                const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                return `
+                    <li class="schedule-item">
+                        <span class="time">${dateStr} ${timeStr}</span>
+                        <span class="content">${item.hook}</span>
+                        <span class="delete" onclick="deleteSchedule(${item.id})">✕</span>
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        function deleteSchedule(id) {
+            schedule = schedule.filter(s => s.id !== id);
+            localStorage.setItem('contentSchedule', JSON.stringify(schedule));
+            renderScheduleList();
+        }
+        
+        function updateStats() {
+            document.getElementById('totalIdeas').textContent = ideas.length;
+            document.getElementById('scheduledCount').textContent = schedule.length;
+            document.getElementById('postedCount').textContent = ideas.filter(i => i.status === 'posted').length;
+            
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            document.getElementById('thisWeek').textContent = ideas.filter(i => new Date(i.created) > weekAgo).length;
+        }
+        
+        function exportData() {
+            const data = { ideas, schedule, exported: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'content-planner-export.json';
+            a.click();
+        }
+        
+        function clearAllData() {
+            if (confirm('Are you sure? This will delete all ideas and schedules.')) {
+                ideas = [];
+                schedule = [];
+                localStorage.removeItem('contentIdeas');
+                localStorage.removeItem('contentSchedule');
+                renderIdeas();
+                renderScheduleList();
+                updateStats();
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('contentIdeas', JSON.stringify(ideas));
+        }
+        
+        // Initialize
+        renderIdeas();
+        renderScheduleList();
+    </script>
+</body>
+</html>
