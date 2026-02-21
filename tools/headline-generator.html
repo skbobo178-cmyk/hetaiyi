@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Headline Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus { outline: none; border-color: #4ecdc4; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #4ecdc4; color: #1a1a2e; }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .headline {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #4ecdc4;
+        }
+        .headline:hover {
+            background: rgba(78, 205, 196, 0.1);
+            transform: translateX(5px);
+        }
+        .headline .number {
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .headline .text {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        .headline .type {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 8px;
+            color: #a0a0a0;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .category-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .category-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #4ecdc4; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+        
+        .copy-all-btn {
+            margin-top: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Viral Headline Generator</h1>
+        <p class="subtitle">Generate click-worthy headlines for your content</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Your Topic / Keyword</label>
+                    <input type="text" id="topic" placeholder="e.g., AI tools, weight loss, making money">
+                    
+                    <label>Category</label>
+                    <div class="category-select">
+                        <button class="category-btn active" onclick="setCategory('tech')">Tech</button>
+                        <button class="category-btn" onclick="setCategory('business')">Business</button>
+                        <button class="category-btn" onclick="setCategory('lifestyle')">Lifestyle</button>
+                        <button class="category-btn" onclick="setCategory('health')">Health</button>
+                        <button class="category-btn" onclick="setCategory('education')">Education</button>
+                    </div>
+                    
+                    <label>Tone</label>
+                    <select id="tone">
+                        <option value="exciting">Exciting</option>
+                        <option value="curious">Curious</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="professional">Professional</option>
+                        <option value="funny">Funny</option>
+                    </select>
+                    
+                    <label>Number of Headlines</label>
+                    <select id="count">
+                        <option value="5">5 Headlines</option>
+                        <option value="10" selected>10 Headlines</option>
+                        <option value="20">20 Headlines</option>
+                    </select>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateHeadlines()">Generate Headlines</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="generatedCount">0</div>
+                            <div class="label">Generated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Generated Headlines</label>
+                    <div id="headlinesList">
+                        <p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>
+                    </div>
+                    
+                    <button class="btn-copy copy-all-btn" onclick="copyAll()">Copy All</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>📝 Headline Formulas That Work</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>Number + Benefit:</strong> "5 Ways to [Benefit]"</li>
+                <li><strong>Curiosity Gap:</strong> "What Nobody Tells You About [Topic]"</li>
+                <li><strong>How-To:</strong> "How to [Achieve Result] in [Timeframe]"</li>
+                <li><strong>Contrarian:</strong> "Why [Common Belief] Is Wrong"</li>
+                <li><strong>Transformation:</strong> "From [Bad] to [Good] in [Time]"</li>
+                <li><strong>Ultimate Guide:</strong> "The Ultimate Guide to [Topic]"</li>
+                <li><strong>Secret/Truth:</strong> "The [Secret/Truth] About [Topic]"</li>
+                <li><strong>Listicle:</strong> "[Number] [Topic] That Will [Benefit]"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentCategory = 'tech';
+        let generatedHeadlines = [];
+        
+        const headlineTemplates = {
+            tech: [
+                "{topic}: The Ultimate Guide for 2026",
+                "Why {topic} Is Taking Over (And What It Means for You)",
+                "5 {topic} Tools That Will Change Your Workflow",
+                "How I Mastered {topic} in 30 Days",
+                "The {topic} Secret Nobody Talks About",
+                "What Experts Think About {topic} in 2026",
+                "{topic}: Everything You Need to Know",
+                "Stop Wasting Time on {topic} - Do This Instead",
+                "7 {topic} Mistakes You're Probably Making",
+                "The Future of {topic}: Predictions for Next Year",
+                "How {topic} Made Me More Productive",
+                "Why You're Failing at {topic} (And How to Fix It)",
+                "{topic} vs The Competition: Which Wins?",
+                "The {topic} Framework That Actually Works",
+                "10 {topic} Tips From Industry Experts",
+                "What {topic} Companies Don't Want You to Know",
+                "Master {topic} With These Simple Hacks",
+                "The Beginner's Guide to {topic}",
+                "{topic} Is Dead. Here's What Comes Next.",
+                "How to Get Started With {topic} Today"
+            ],
+            business: [
+                "How to Make Money With {topic}",
+                "{topic}: The Side Hustle That Pays the Most",
+                "Why {topic} Is the Future of Income",
+                "7-Figure Secrets From {topic} Experts",
+                "The {topic} Business Model That Works",
+                "From Zero to {topic} Hero",
+                "What Successful {topic} Entrepreneurs Know",
+                "The {topic} Strategy No One Talks About",
+                "How to Scale Your {topic} Income",
+                "{topic} Mistakes That Cost You Thousands",
+                "The Ultimate {topic} Blueprint",
+                "Why Your {topic} Efforts Aren't Working",
+                "5 {topic} Paths to Financial Freedom",
+                "{topic} vs Traditional Business: Which Is Better?",
+                "The {topic} Mindset for Success",
+                "How to Build a {topic} Empire",
+                "{topic} Trends to Watch in 2026",
+                "The {topic} Playbook for Beginners",
+                "Why {topic} Is Your Best Investment",
+                "Transform Your Life With {topic}"
+            ],
+            lifestyle: [
+                "How {topic} Changed My Life",
+                "The {topic} Routine That Works",
+                "Why {topic} Is Essential for Happiness",
+                "5 {topic} Habits of Successful People",
+                "{topic}: What They Don't Tell You",
+                "The {topic} Lifestyle Guide",
+                "How to Incorporate {topic} Into Daily Life",
+                "7 {topic} Tips for a Better Life",
+                "Why You're Missing Out on {topic}",
+                "The {topic} Revolution Is Here",
+                "{topic} That Will Improve Your Day",
+                "What {topic} Experts Do Differently",
+                "The Simple {topic} Solution",
+                "How {topic} Improves Mental Health",
+                "{topic} Myths Debunked",
+                "The {topic} Practice for Beginners",
+                "Why {topic} Is the New Self-Care",
+                "5 Minute {topic} Guide",
+                "{topic}: Your Complete Roadmap",
+                "The Hidden Benefits of {topic}"
+            ],
+            health: [
+                "The {topic} Guide for Better Health",
+                "Why {topic} Is Essential for Your Body",
+                "5 {topic} Strategies That Actually Work",
+                "How {topic} Changed My Health Journey",
+                "The Science Behind {topic}",
+                "{topic}: What Doctors Want You to Know",
+                "7-Day {topic} Challenge",
+                "The {topic} Mistake Everyone Makes",
+                "How to Master {topic} in 30 Days",
+                "Why {topic} Is the Key to Wellness",
+                "The Ultimate {topic} Blueprint",
+                "{topic} vs Medication: What Works?",
+                "How {topic} Improves Your Energy",
+                "The {topic} Protocol for Results",
+                "Why Your {topic} Plan Isn't Working",
+                "5 {topic} Foods to Avoid",
+                "The {topic} Truth No One Tells You",
+                "How to Start {topic} Today",
+                "{topic}: The Natural Solution",
+                "The {topic} Recovery Guide"
+            ],
+            education: [
+                "How to Learn {topic} Fast",
+                "{topic}: The Complete Course",
+                "5 {topic} Skills You Need in 2026",
+                "The {topic} Masterclass",
+                "Why {topic} Is the Future of Learning",
+                "How I Mastered {topic} Self-Teach",
+                "The {topic} Framework for Success",
+                "7 Steps to {topic} Mastery",
+                "{topic} for Beginners: Start Here",
+                "The {topic} Certification Guide",
+                "How to Use {topic} for Career Growth",
+                "The Best {topic} Resources Online",
+                "{topic}: What They Don't Teach in School",
+                "How to Become Expert in {topic}",
+                "The {topic} Learning Path",
+                "Why {topic} Skills Matter Now",
+                "5 {topic} Study Tips That Work",
+                "The {topic} Book List You Need",
+                "How {topic} Opens Career Doors",
+                "Master {topic} With These Resources"
+            ]
+        };
+        
+        const toneModifiers = {
+            exciting: ['🔥 ', '⚡ ', '🚀 ', '✨ '],
+            curious: ['🤔 ', '👀 ', 'Wait... ', 'What if '],
+            urgent: ['🚨 ', '⚠️ ', 'Hurry! ', 'Limited: '],
+            professional: ['📊 ', '📈 ', 'Data: ', 'Research: '],
+            funny: ['😂 ', '🤣 ', 'LOL: ', 'When ']
+        };
+        
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateHeadlines() {
+            const topic = document.getElementById('topic').value.trim() || 'this';
+            const tone = document.getElementById('tone').value;
+            const count = parseInt(document.getElementById('count').value);
+            
+            let templates = [...headlineTemplates[currentCategory]];
+            
+            // Shuffle templates
+            templates = shuffleArray(templates).slice(0, count);
+            
+            // Apply tone
+            const modifiers = toneModifiers[tone];
+            
+            generatedHeadlines = templates.map((template, i) => {
+                let headline = template.replace(/{topic}/g, topic);
+                
+                // Add tone modifier to some headlines
+                if (modifiers && Math.random() > 0.5 && i < count / 2) {
+                    const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+                    headline = modifier + headline;
+                }
+                
+                return {
+                    text: headline,
+                    type: currentCategory
+                };
+            });
+            
+            renderHeadlines();
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderHeadlines() {
+            const container = document.getElementById('headlinesList');
+            
+            if (generatedHeadlines.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>';
+                return;
+            }
+            
+            container.innerHTML = generatedHeadlines.map((h, i) => `
+                <div class="headline" onclick="copyOne(${i})">
+                    <span class="number">${i + 1}.</span>
+                    <span class="text">${escapeHtml(h.text)}</span>
+                    <span class="type">${h.type}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('generatedCount').textContent = generatedHeadlines.length;
+        }
+        
+        function escapeHtml(text) {
+            return text;
+        }
+        
+        function copyOne(index) {
+            navigator.clipboard.writeText(generatedHeadlines[index].text);
+            // Brief visual feedback
+            const headlines = document.querySelectorAll('.headline');
+            headlines[index].style.background = 'rgba(78, 205, 196, 0.3)';
+            setTimeout(() => {
+                headlines[index].style.background = '';
+            }, 200);
+        }
+        
+        function copyAll() {
+            const text = generatedHeadlines.map((h, i) => `${i + 1}. ${h.text}`).join('\n');
+            navigator.clipboard.writeText(text);
+            alert('All headlines copied!');
+        }
+    </script>
+</body>
+</html>
