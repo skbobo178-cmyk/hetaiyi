@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Traffic Estimator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        label { display: block; margin-bottom: 8px; color: #aaa; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .result {
+            background: rgba(78, 205, 196, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        .result .label {
+            color: #aaa;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Traffic Estimator</h1>
+        <p class="subtitle">Estimate potential traffic from social media</p>
+        
+        <div class="card">
+            <label>Platform</label>
+            <select id="platform">
+                <option value="twitter">Twitter/X</option>
+                <option value="instagram">Instagram</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="tiktok">TikTok</option>
+            </select>
+            
+            <label>Followers</label>
+            <input type="number" id="followers" placeholder="e.g., 10000">
+            
+            <label>Post Type</label>
+            <select id="postType">
+                <option value="regular">Regular Post</option>
+                <option value="viral">Viral Potential</option>
+                <option value="thread">Thread</option>
+                <option value="video">Video/Reel</option>
+            </select>
+            
+            <label>Engagement Rate (%)</label>
+            <input type="number" id="engagement" placeholder="e.g., 3" value="3">
+            
+            <button onclick="calculate()" style="width:100%;padding:15px;background:#4ecdc4;border:none;border-radius:8px;font-weight:bold;color:#1a1a2e;cursor:pointer;">Calculate</button>
+            
+            <div class="result" id="result" style="display:none;">
+                <div class="value" id="views">0</div>
+                <div class="label">Estimated Views</div>
+                <div style="margin-top:15px;color:#aaa;font-size:14px;">
+                    <span id="clicks">0</span> link clicks<br>
+                    <span id="saves">0</span> saves
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const multipliers = {
+            twitter: { regular: 0.15, viral: 2, thread: 0.25, video: 0.3 },
+            instagram: { regular: 0.2, viral: 3, thread: 0.3, video: 0.5 },
+            linkedin: { regular: 0.18, viral: 1.5, thread: 0.25, video: 0.35 },
+            tiktok: { regular: 0.4, viral: 5, thread: 0.3, video: 0.8 }
+        };
+        
+        function calculate() {
+            const followers = parseInt(document.getElementById('followers').value) || 0;
+            const platform = document.getElementById('platform').value;
+            const postType = document.getElementById('postType').value;
+            const engagement = parseFloat(document.getElementById('engagement').value) || 3;
+            
+            const mult = multipliers[platform][postType];
+            const views = Math.round(followers * (engagement/100) * mult * 10);
+            
+            document.getElementById('views').textContent = formatNumber(views);
+            document.getElementById('clicks').textContent = formatNumber(Math.round(views * 0.02));
+            document.getElementById('saves').textContent = formatNumber(Math.round(views * 0.01));
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function formatNumber(n) {
+            if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+            return n;
+        }
+    </script>
+</body>
+</html>
