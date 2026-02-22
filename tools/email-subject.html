@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Subject Line Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus { outline: none; border-color: #4285f4; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #4285f4; color: #fff; }
+        .btn-primary:hover { background: #3367d6; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .subject-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #4285f4;
+        }
+        .subject-box:hover {
+            background: rgba(66, 133, 244, 0.15);
+        }
+        .subject-box .category {
+            color: #4285f4;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .subject-box .subject {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #4285f4;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #4285f4; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+        
+        .preview-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            color: #333;
+        }
+        .preview-box .preview-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .preview-box .preview-subject {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .preview-box .preview-sender {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Subject Line Generator</h1>
+        <p class="subtitle">Create high-converting email subject lines</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Topic / Email Purpose</label>
+                    <input type="text" id="topic" placeholder="e.g., newsletter, product launch, follow-up">
+                    
+                    <label>Email Type</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setType('newsletter')">📰 Newsletter</button>
+                        <button class="style-btn" onclick="setType('promotional')">🎁 Promotion</button>
+                        <button class="style-btn" onclick="setType('welcome')">👋 Welcome</button>
+                        <button class="style-btn" onclick="setType('followup')">⏰ Follow-up</button>
+                    </div>
+                    
+                    <label>Tone</label>
+                    <select id="tone">
+                        <option value="curious">Curious</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="friendly">Friendly</option>
+                        <option value="professional">Professional</option>
+                    </select>
+                    
+                    <label>Number of Subjects</label>
+                    <select id="count">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                    </select>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateSubjects()">Generate</button>
+                        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="subjectCount">0</div>
+                            <div class="label">Subjects</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Subject Lines</label>
+                    <div id="subjectsList">
+                        <p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>📝 Subject Line Best Practices</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>Keep it under 50 chars:</strong> Mobile cuts off longer subjects</li>
+                <li><strong>Use curiosity:</strong> Questions or mysteries get opens</li>
+                <li><strong>Add numbers:</strong> Lists perform well</li>
+                <li><strong>Personalize:</strong> Include name or company</li>
+                <li><strong>A/B test:</strong> Try different versions</li>
+                <li><strong>Avoid spam words:</strong> Free, guarantee, urgent, $$$</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'newsletter';
+        
+        const subjectTemplates = {
+            newsletter: [
+                "This week: {topic} + exclusive insights",
+                "{topic} - Here's what you missed",
+                "Your weekly dose of {topic}",
+                "The {topic} digest you need",
+                "Tuesday thoughts on {topic}",
+                "3 things I learned about {topic}",
+                "{topic}: The roundup",
+                "Ready for your {topic} update?",
+                "Everything {topic} this week",
+                "{topic} insights inside",
+                "Your {topic} weekly briefing",
+                "Let's talk {topic}",
+                "{topic} - worth your time",
+                "The best of {topic} this week",
+                "Get smarter about {topic}"
+            ],
+            promotional: [
+                "Last chance: {topic} at 50% off",
+                "🎁 Your exclusive {topic} offer",
+                "Don't miss this {topic} deal",
+                "Limited time: {topic} special",
+                "Flash sale on {topic}",
+                "Get {topic} before it's gone",
+                "Special invitation: {topic}",
+                "Only {hours} hours left for {topic}",
+                "Your {topic} - special price",
+                "Unlock {topic} savings now",
+                "Bonus: Free {topic} for you",
+                "{topic} sale starts now",
+                "Don't wait - {topic} offer",
+                "Exclusive deal on {topic}",
+                "Save big on {topic} today"
+            ],
+            welcome: [
+                "Welcome to {topic}! 🎉",
+                "Your {topic} journey starts here",
+                "Ready to master {topic}?",
+                "Thanks for joining {topic}",
+                "Here's your {topic} starter guide",
+                "Let's get started with {topic}",
+                "Your first step to {topic}",
+                "Welcome aboard - {topic}",
+                "Everything you need for {topic}",
+                "Your {topic} welcome kit",
+                "Start your {topic} adventure",
+                "Congratulations on joining {topic}",
+                "First steps in {topic}",
+                "You're in - welcome to {topic}",
+                "Let's begin your {topic} journey"
+            ],
+            followup: [
+                "Quick question about {topic}",
+                "Did you see my last email about {topic}?",
+                "Following up on {topic}",
+                "Still interested in {topic}?",
+                "Just checking in on {topic}",
+                "One more thing about {topic}",
+                "Thoughts on {topic}?",
+                "Checking back on {topic}",
+                "Any questions about {topic}?",
+                "Last call on {topic}",
+                "Before you go - {topic}",
+                "On my last email about {topic}",
+                "Curious about {topic}?",
+                "What do you think about {topic}?",
+                "Just wanted to follow up"
+            ]
+        };
+        
+        const toneModifiers = {
+            curious: ['?', '...', 'Wait until you see', 'The truth about', 'What nobody tells you'],
+            urgent: ['Now', 'Today', 'Limited', 'Last chance', 'Hurry', 'Before it\'s gone'],
+            friendly: ['Hey', 'Quick', 'Thought you\'d like', 'Just for you', 'You might like'],
+            professional: ['Update:', 'RE:', 'Regarding', 'Important:', 'For your review']
+        };
+        
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateSubjects() {
+            const topic = document.getElementById('topic').value.trim() || 'this';
+            const tone = document.getElementById('tone').value;
+            const count = parseInt(document.getElementById('count').value);
+            
+            let templates = [...subjectTemplates[currentType]];
+            
+            // Shuffle
+            templates = shuffleArray(templates).slice(0, count);
+            
+            // Apply tone
+            const modifiers = toneModifiers[tone];
+            
+            const subjects = templates.map(template => {
+                let subject = template
+                    .replace(/{topic}/g, topic)
+                    .replace(/{hours}/g, '24')
+                    .replace(/{days}/g, '3');
+                
+                // Add some tone variation randomly
+                if (Math.random() > 0.6 && modifiers) {
+                    const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+                    if (modifier.includes('?')) {
+                        subject = modifier + ' ' + topic;
+                    } else if (!subject.startsWith(modifier)) {
+                        subject = modifier + ': ' + subject;
+                    }
+                }
+                
+                return {
+                    text: subject,
+                    category: currentType
+                };
+            });
+            
+            renderSubjects(subjects);
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderSubjects(subjects) {
+            const container = document.getElementById('subjectsList');
+            
+            if (subjects.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>';
+                return;
+            }
+            
+            container.innerHTML = subjects.map((s, i) => `
+                <div class="subject-box" onclick="copySubject('${escapeHtml(s.text)}')">
+                    <div class="category">${s.category}</div>
+                    <div class="subject">${s.text}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('subjectCount').textContent = subjects.length;
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function copySubject(subject) {
+            navigator.clipboard.writeText(subject);
+            const boxes = document.querySelectorAll('.subject-box');
+            boxes.forEach(box => {
+                if (box.querySelector('.subject').textContent === subject) {
+                    box.style.background = 'rgba(66, 133, 244, 0.3)';
+                    setTimeout(() => box.style.background = '', 300);
+                }
+            });
+        }
+        
+        function clearAll() {
+            document.getElementById('topic').value = '';
+            document.getElementById('subjectsList').innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>';
+            document.getElementById('subjectCount').textContent = '0';
+        }
+    </script>
+</body>
+</html>
