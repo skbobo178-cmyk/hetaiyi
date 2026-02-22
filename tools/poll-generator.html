@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poll & Quiz Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #1da1f2; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #1da1f2; color: #fff; }
+        .btn-primary:hover { background: #1a91da; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        
+        .poll-output {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 3px solid #1da1f2;
+        }
+        .poll-output .question {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .poll-output .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .poll-output .option {
+            background: rgba(29, 161, 242, 0.2);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #1da1f2;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Poll & Quiz Generator</h1>
+        <p class="subtitle">Create engaging polls for social media</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Poll Question</label>
+                    <input type="text" id="question" placeholder="What should I post about next?">
+                    
+                    <label>Poll Type</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setType('opinion')">💭 Opinion</button>
+                        <button class="style-btn" onclick="setType('preference')">❤️ Preference</button>
+                        <button class="style-btn" onclick="setType('knowledge')">🧠 Knowledge</button>
+                        <button class="style-btn" onclick="setType('action')">🎯 Action</button>
+                    </div>
+                    
+                    <label>Number of Options</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setOptions(2)">2 Options</button>
+                        <button class="style-btn" onclick="setOptions(3)">3 Options</button>
+                        <button class="style-btn" onclick="setOptions(4)">4 Options</button>
+                        <button class="style-btn" onclick="setOptions(5)">5 Options</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generatePoll()">Generate Poll</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Your Poll</label>
+                    <div id="pollOutput">
+                        <p style="color: #aaa;">Your poll will appear here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>📝 Poll Best Practices</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>Keep it simple:</strong> 2-4 options work best</li>
+                <li><strong>Be specific:</strong> Clear questions get more responses</li>
+                <li><strong>Use either/or:</strong> Binary choices have higher engagement</li>
+                <li><strong>Ask relatable questions:</strong> People respond to personal topics</li>
+                <li><strong>Include follow-up:</strong> Reply to comments with results</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'opinion';
+        let optionCount = 2;
+        
+        const pollTemplates = {
+            opinion: [
+                { question: "What's your take on {topic}?", options: ["Love it ❤️", "Not for me 🙄"] },
+                { question: "Is {topic} worth the hype?", options: ["Yes! Definitely 🔥", "Overrated 🤷", "Haven't tried it yet"] },
+                { question: "Which do you prefer?", options: ["{topic} A", "{topic} B"] },
+                { question: "Hot or cold take on {topic}?", options: ["Hot 🔥", "Cold 🧊"] },
+                { question: "Agree or disagree?", options: ["Agree ✅", "Disagree ❌"] }
+            ],
+            preference: [
+                { question: "Which {topic} do you prefer?", options: ["Option A", "Option B"] },
+                { question: "What's your favorite {topic}?", options: ["Classic 🏆", "Modern ✨", "Neither 😴"] },
+                { question: "Pick one!", options: ["{topic} 1", "{topic} 2"] },
+                { question: "Which would you choose?", options: ["A", "B", "C"] },
+                { question: "Team {topic} or Team {other}?", options: ["Team {topic}!", "Team {other}!"] }
+            ],
+            knowledge: [
+                { question: "How much do you know about {topic}?", options: ["Expert 👑", "Some knowledge 📚", "Beginner 🌱"] },
+                { question: "How often do you {topic}?", options: ["Daily 📅", "Weekly 📆", "Rarely 🗓️"] },
+                { question: "How long have you been doing {topic}?", options: ["< 1 year", "1-3 years", "3+ years"] },
+                { question: "How did you discover {topic}?", options: ["Social media 📱", "Friend 👤", "Search 🔍"] },
+                { question: "What's your {topic} level?", options: ["Beginner", "Intermediate", "Advanced"] }
+            ],
+            action: [
+                { question: "Should I post more about {topic}?", options: ["Yes! Definitely ✅", "No thanks ❌"] },
+                { question: "What content do you want next?", options: ["Tutorials 📚", "Reviews ⭐", "Behind scenes 🎬"] },
+                { question: "Will you try {topic}?", options: ["Already done! ✅", "Planning to 🎯", "Not interested 🙅"] },
+                { question: "Drop a if you agree!", options: ["🙌", "💯"] },
+                { question: "Who else wants more {topic} content?", options: ["Me! 🙋", "Yes! 🙋‍♀️"] }
+            ]
+        };
+        
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.style-select:first-child .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setOptions(count) {
+            optionCount = count;
+            document.querySelectorAll('.style-select:nth-child(2) .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generatePoll() {
+            const question = document.getElementById('question').value.trim();
+            
+            let poll;
+            if (question) {
+                // Custom question
+                const options = [];
+                for (let i = 0; i < optionCount; i++) {
+                    options.push(`Option ${String.fromCharCode(65 + i)}`);
+                }
+                poll = { question, options };
+            } else {
+                // Template question
+                const templates = pollTemplates[currentType];
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                poll = {
+                    question: template.question.replace(/{topic}/g, 'this').replace(/{other}/g, 'that'),
+                    options: template.options.slice(0, optionCount).map(o => o.replace(/{topic}/g, 'this').replace(/{other}/g, 'that'))
+                };
+            }
+            
+            renderPoll(poll);
+        }
+        
+        function renderPoll(poll) {
+            const container = document.getElementById('pollOutput');
+            
+            let html = `
+                <div class="poll-output">
+                    <div class="question">${poll.question}</div>
+                    <div class="options">
+            `;
+            
+            poll.options.forEach(opt => {
+                html += `<div class="option">${opt}</div>`;
+            });
+            
+            html += `
+                    </div>
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="copyPoll()">Copy Poll</button>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function copyPoll() {
+            const pollEl = document.getElementById('pollOutput');
+            const question = pollEl.querySelector('.question').textContent;
+            const options = Array.from(pollEl.querySelectorAll('.option')).map(o => o.textContent);
+            
+            const text = `📊 ${question}\n\n${options.map((o, i) => `${i + 1}. ${o}`).join('\n')}`;
+            navigator.clipboard.writeText(text);
+            alert('Poll copied!');
+        }
+    </script>
+</body>
+</html>
