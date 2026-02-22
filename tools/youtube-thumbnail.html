@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Thumbnail & Title Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus { outline: none; border-color: #ff0000; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #ff0000; color: #fff; }
+        .btn-primary:hover { background: #cc0000; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        
+        .thumbnail-preview {
+            background: #000;
+            border-radius: 12px;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            text-align: center;
+        }
+        .thumbnail-preview .main-text {
+            font-size: clamp(18px, 4vw, 36px);
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.1;
+            text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        .thumbnail-preview .sub-text {
+            font-size: clamp(12px, 2.5vw, 20px);
+            font-weight: 700;
+            margin-top: 10px;
+            text-shadow: 2px 2px 0 #000;
+        }
+        .thumbnail-preview .badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #ff0000;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .title-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #ff0000;
+        }
+        .title-box:hover {
+            background: rgba(255,0,0,0.1);
+        }
+        .title-type {
+            color: #ff0000;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .title-text {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .color-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .color-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .color-btn:hover, .color-btn.active {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #ff0000;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #ff0000; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+        
+        .tips-box {
+            background: rgba(255,0,0,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .tips-box h4 { color: #ff0000; margin-bottom: 10px; }
+        .tips-box ul { padding-left: 20px; color: #ccc; font-size: 14px; line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📺 YouTube Thumbnail & Title Generator</h1>
+        <p class="subtitle">Create click-worthy thumbnails and titles</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Video Topic / Keyword</label>
+                    <input type="text" id="topic" placeholder="e.g., AI tools, weight loss, coding tutorial">
+                    
+                    <label>Thumbnail Background Color</label>
+                    <div class="color-select">
+                        <div class="color-btn active" style="background: #ff0000;" onclick="setColor('#ff0000', this)"></div>
+                        <div class="color-btn" style="background: #ff6600;" onclick="setColor('#ff6600', this)"></div>
+                        <div class="color-btn" style="background: #ffcc00;" onclick="setColor('#ffcc00', this)"></div>
+                        <div class="color-btn" style="background: #00cc00;" onclick="setColor('#00cc00', this)"></div>
+                        <div class="color-btn" style="background: #0099ff;" onclick="setColor('#0099ff', this)"></div>
+                        <div class="color-btn" style="background: #9900ff;" onclick="setColor('#9900ff', this)"></div>
+                        <div class="color-btn" style="background: #000000;" onclick="setColor('#000000', this)"></div>
+                        <div class="color-btn" style="background: #ffffff;" onclick="setColor('#ffffff', this)"></div>
+                    </div>
+                    
+                    <label>Style</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setStyle('list')">📋 List</button>
+                        <button class="style-btn" onclick="setStyle('tutorial')">🎓 Tutorial</button>
+                        <button class="style-btn" onclick="setStyle('reaction')">😱 Reaction</button>
+                        <button class="style-btn" onclick="setStyle('review')">⭐ Review</button>
+                        <button class="style-btn" onclick="setStyle('vlog')">🎬 Vlog</button>
+                    </div>
+                    
+                    <label>Custom Text (optional)</label>
+                    <input type="text" id="customText" placeholder="Override the default text">
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generate()">Generate</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Thumbnail Preview</label>
+                    <div class="thumbnail-preview" id="thumbnailPreview">
+                        <div class="main-text" id="mainText">5 AI TOOLS</div>
+                        <div class="sub-text" id="subText">That Changed Everything</div>
+                        <div class="badge">NEW</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Title Suggestions</label>
+            <div id="titlesList">
+                <p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="stats">
+                <div class="stat">
+                    <div class="number" id="titleCount">0</div>
+                    <div class="label">Titles</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tips-box">
+            <h4>🔥 Thumbnail Tips That Work</h4>
+            <ul>
+                <li><strong>Big text:</strong> Use 40pt+ font, all caps, high contrast</li>
+                <li><strong>Bold colors:</strong> Red, yellow, and bright colors get more clicks</li>
+                <li><strong>Face expressions:</strong> Big emotions = more clicks</li>
+                <li><strong>Arrows & circles:</strong> Draw attention to key elements</li>
+                <li><strong>Numbers:</strong> Lists perform well (5 Tips, 10 Ways)</li>
+                <li><strong>Contrast:</strong> White text on dark backgrounds or vice versa</li>
+                <li><strong>Simplicity:</strong> Don't clutter - one main message</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentColor = '#ff0000';
+        let currentStyle = 'list';
+        
+        const titleTemplates = {
+            list: [
+                "5 {topic} Tools That Changed Everything",
+                "10 {topic} Tips You Need NOW",
+                "7 {topic} Mistakes You're Making",
+                "The Ultimate {topic} Guide",
+                "{topic} 101: Complete Tutorial",
+                "5 {topic} Facts That Will Surprise You",
+                "10 {topic} Hacks That Actually Work",
+                "{topic} in 2026: What You Need to Know"
+            ],
+            tutorial: [
+                "How to Master {topic} in 30 Days",
+                "Learn {topic} - Full Course",
+                "{topic} From Scratch - Beginner's Guide",
+                "How to Do {topic} Like a Pro",
+                "Complete {topic} Tutorial (2026)",
+                "Master {topic}: Step by Step Guide",
+                "The Only {topic} Tutorial You Need",
+                "Learn {topic} Fast: Complete Guide"
+            ],
+            reaction: [
+                "I Tried {topic} For 30 Days - Here's What Happened",
+                "Reacting to {topic} (Gone Wrong?)",
+                "My Honest {topic} Review",
+                "Is {topic} Actually Worth It?",
+                "Surprising {topic} Results!",
+                "I Can't Believe {topic} Happened",
+                "The Truth About {topic}",
+                "{topic} Broke My Brain"
+            ],
+            review: [
+                "{topic} Review: Honest Opinion",
+                "Is {topic} Worth Your Time?",
+                "{topic} - Full Breakdown",
+                "The Good & Bad About {topic}",
+                "My {topic} Experience",
+                "{topic} After 1 Year - Review",
+                "Should You Try {topic}?",
+                "{topic} vs The Competition"
+            ],
+            vlog: [
+                "A Day in My Life with {topic}",
+                "My {topic} Routine",
+                "Behind the Scenes: {topic}",
+                "My {topic} Journey",
+                "Everything About My {topic}",
+                "My Honest {topic} Day",
+                "Following {topic} Routine for 7 Days",
+                "Life Update: {topic}"
+            ]
+        };
+        
+        function setColor(color, btn) {
+            currentColor = color;
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updatePreview();
+        }
+        
+        function setStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generate() {
+            const topic = document.getElementById('topic').value.trim() || 'This';
+            const customText = document.getElementById('customText').value.trim();
+            
+            // Update thumbnail preview
+            if (customText) {
+                const words = customText.split(' ');
+                if (words.length > 3) {
+                    document.getElementById('mainText').textContent = words.slice(0, 3).join(' ');
+                    document.getElementById('subText').textContent = words.slice(3).join(' ');
+                } else {
+                    document.getElementById('mainText').textContent = customText;
+                    document.getElementById('subText').textContent = '';
+                }
+            } else {
+                const styles = {
+                    list: ['5 THINGS', '10 WAYS', '7 TIPS', 'ULTIMATE'],
+                    tutorial: ['HOW TO', 'LEARN', 'TUTORIAL', 'GUIDE'],
+                    reaction: ['TRYING', 'REACTION', 'RESULTS', 'TRUTH'],
+                    review: ['REVIEW', 'HONEST', 'TEST', 'VS'],
+                    vlog: ['MY DAY', 'ROUTINE', 'JOURNEY', 'LIFE']
+                };
+                
+                const options = styles[currentStyle] || styles.list;
+                const mainText = options[Math.floor(Math.random() * options.length)];
+                const subText = topic.toUpperCase();
+                
+                document.getElementById('mainText').textContent = mainText;
+                document.getElementById('subText').textContent = subText;
+            }
+            
+            // Generate titles
+            const templates = titleTemplates[currentStyle];
+            const titles = templates.map(t => t.replace(/{topic}/g, topic));
+            
+            renderTitles(titles);
+            updatePreview();
+        }
+        
+        function renderTitles(titles) {
+            const container = document.getElementById('titlesList');
+            
+            if (titles.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a topic and click Generate!</p>';
+                return;
+            }
+            
+            container.innerHTML = titles.map((title, i) => `
+                <div class="title-box" onclick="copyTitle('${escapeHtml(title)}')">
+                    <div class="title-type">${currentStyle}</div>
+                    <div class="title-text">${title}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('titleCount').textContent = titles.length;
+        }
+        
+        function updatePreview() {
+            const preview = document.getElementById('thumbnailPreview');
+            preview.style.background = currentColor;
+            
+            const mainText = document.getElementById('mainText');
+            const subText = document.getElementById('subText');
+            
+            // Set text color based on background
+            const isLight = ['#ffcc00', '#ffffff'].includes(currentColor);
+            const textColor = isLight ? '#000' : '#fff';
+            
+            mainText.style.color = textColor;
+            subText.style.color = textColor;
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function copyTitle(title) {
+            navigator.clipboard.writeText(title);
+            // Visual feedback
+            const boxes = document.querySelectorAll('.title-box');
+            boxes.forEach(box => {
+                if (box.querySelector('.title-text').textContent === title) {
+                    box.style.background = 'rgba(255,0,0,0.3)';
+                    setTimeout(() => box.style.background = '', 300);
+                }
+            });
+        }
+        
+        // Initialize
+        generate();
+    </script>
+</body>
+</html>
