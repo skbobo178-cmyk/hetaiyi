@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Repurposer - One Post, Many Platforms</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        textarea, input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        textarea { min-height: 120px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #4ecdc4; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #4ecdc4; color: #1a1a2e; }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+        
+        .platform-output {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #4ecdc4;
+        }
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .platform-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        .platform-icon { font-size: 20px; }
+        .platform-char {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        .platform-content {
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .platform-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .platform-tab {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .platform-tab:hover, .platform-tab.active {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.2);
+        }
+        
+        .format-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .format-tab {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .format-tab:hover, .format-tab.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .template-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .quick-templates {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .template-btn {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .template-btn:hover { background: rgba(78, 205, 196, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Content Repurposer</h1>
+        <p class="subtitle">Turn one piece of content into multiple formats</p>
+        
+        <div class="card">
+            <label>Original Content</label>
+            <div class="quick-templates">
+                <button class="template-btn" onclick="loadTemplate('thread')">📖 Tweet Thread</button>
+                <button class="template-btn" onclick="loadTemplate('blog')">📝 Blog Post</button>
+                <button class="template-btn" onclick="loadTemplate('video')">🎥 Video Script</button>
+                <button class="template-btn" onclick="loadTemplate('email')">📧 Email</button>
+            </div>
+            <textarea id="originalContent" placeholder="Paste your original content here (tweet, blog post, video script, etc.)..."></textarea>
+            
+            <label>Content Type</label>
+            <div class="format-tabs">
+                <button class="format-tab active" onclick="setFormat('thread')">Thread</button>
+                <button class="format-tab" onclick="setFormat('blog')">Blog Post</button>
+                <button class="format-tab" onclick="setFormat('instagram')">Instagram</button>
+                <button class="format-tab" onclick="setFormat('linkedin')">LinkedIn</button>
+                <button class="format-tab" onclick="setFormat('email')">Email</button>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="repurpose()">Repurpose Content</button>
+                <button class="btn-secondary" onclick="clearAll()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Twitter / X</label>
+                    <div class="platform-output">
+                        <div class="platform-header">
+                            <span class="platform-name"><span class="platform-icon">🐦</span> Twitter</span>
+                            <span class="platform-char" id="twitterChar">0/280</span>
+                        </div>
+                        <div class="platform-content" id="twitterOutput">Generated content will appear here...</div>
+                        <button class="btn-copy" style="margin-top: 10px; width: 100%;" onclick="copyOutput('twitterOutput')">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <label>LinkedIn</label>
+                    <div class="platform-output">
+                        <div class="platform-header">
+                            <span class="platform-name"><span class="platform-icon">💼</span> LinkedIn</span>
+                            <span class="platform-char" id="linkedinChar">0/3000</span>
+                        </div>
+                        <div class="platform-content" id="linkedinOutput">Generated content will appear here...</div>
+                        <button class="btn-copy" style="margin-top: 10px; width: 100%;" onclick="copyOutput('linkedinOutput')">Copy</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Instagram Caption</label>
+                    <div class="platform-output">
+                        <div class="platform-header">
+                            <span class="platform-name"><span class="platform-icon">📷</span> Instagram</span>
+                            <span class="platform-char" id="instagramChar">0/2200</span>
+                        </div>
+                        <div class="platform-content" id="instagramOutput">Generated content will appear here...</div>
+                        <button class="btn-copy" style="margin-top: 10px; width: 100%;" onclick="copyOutput('instagramOutput')">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <label>Email Newsletter</label>
+                    <div class="platform-output">
+                        <div class="platform-header">
+                            <span class="platform-name"><span class="platform-icon">📧</span> Email</span>
+                        </div>
+                        <div class="platform-content" id="emailOutput">Generated content will appear here...</div>
+                        <button class="btn-copy" style="margin-top: 10px; width: 100%;" onclick="copyOutput('emailOutput')">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFormat = 'thread';
+        
+        const templates = {
+            thread: "🧵 [Topic] - A thread on what nobody tells you\n\n[Hook - capture attention]\n\nHere's what I've learned from [experience]:\n\n1/[Point 1]\n\n2/[Point 2]\n\n3/[Point 3]\n\n4/[Point 4]\n\n5/[Point 5 - strongest]\n\nSave this! 🧵",
+            blog: "# [Title]\n\n## Introduction\n[Hook paragraph about why this matters]\n\n## Main Points\n\n### [Point 1]\n[Elaboration and examples]\n\n### [Point 2]\n[Elaboration and examples]\n\n### [Point 3]\n[Elaboration and examples]\n\n## Conclusion\n[Summary and call to action]",
+            video: "🎥 [Video Title]\n\n[0:00] INTRO - Hook viewers in first 5 seconds\n[0:30] What you'll learn today\n[1:00] Point 1 - [key insight]\n[2:00] Point 2 - [key insight]\n[3:00] Point 3 - [key insight]\n[4:00] Summary & key takeaways\n[4:30] CTA - Like, subscribe, comment below",
+            email: "Subject: [Intriguing subject line]\n\nHey [Name],\n\n[Personal hook - connect with reader]\n\nI've been thinking about [topic] lately, and here's what I wanted to share:\n\n[Main content - 3 key points]\n\n[Point 1]\n[Point 2]\n[Point 3]\n\nWhat are your thoughts? Just reply to this email.\n\nBest,\n[Your name]"
+        };
+        
+        function loadTemplate(type) {
+            const template = templates[type];
+            document.getElementById('originalContent').value = template;
+        }
+        
+        function setFormat(format) {
+            currentFormat = format;
+            document.querySelectorAll('.format-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function repurpose() {
+            const content = document.getElementById('originalContent').value.trim();
+            if (!content) {
+                alert('Please enter some content first');
+                return;
+            }
+            
+            // Generate Twitter version (split into thread if long)
+            const twitter = generateTwitter(content);
+            document.getElementById('twitterOutput').textContent = twitter;
+            document.getElementById('twitterChar').textContent = `${twitter.length}/280`;
+            
+            // Generate LinkedIn version
+            const linkedin = generateLinkedIn(content);
+            document.getElementById('linkedinOutput').textContent = linkedin;
+            document.getElementById('linkedinChar').textContent = `${linkedin.length}/3000`;
+            
+            // Generate Instagram version
+            const instagram = generateInstagram(content);
+            document.getElementById('instagramOutput').textContent = instagram;
+            document.getElementById('instagramChar').textContent = `${instagram.length}/2200`;
+            
+            // Generate Email version
+            const email = generateEmail(content);
+            document.getElementById('emailOutput').textContent = email;
+        }
+        
+        function generateTwitter(content) {
+            // Extract key points
+            const lines = content.split('\n').filter(l => l.trim());
+            let twitter = '';
+            
+            if (content.includes('🧵')) {
+                // It's a thread template - fill in with extracted points
+                twitter = "🧵 [Topic]: What nobody tells you\n\nHere's the truth:\n\n1/ Most people get this wrong.\n\n2/ The real secret is...\n\n3/ Here's what actually works:\n\n4/ Don't make this mistake:\n\n5/ Final thought:\n\n🧵 Save this!";
+            } else {
+                // Create a tweet from the content
+                const short = lines.slice(0, 3).join(' ').substring(0, 250);
+                twitter = short + "\n\n🧵 Thread below for more...";
+            }
+            
+            return twitter;
+        }
+        
+        function generateLinkedIn(content) {
+            let linkedin = '';
+            
+            if (content.includes('🧵')) {
+                linkedin = "👀 Let me share something about [topic] that took me years to learn\n\n---\n\n" + content.replace(/🧵/g, '').substring(0, 2000) + "\n\n---\n\n🎯 Key takeaways:\n• [Takeaway 1]\n• [Takeaway 2]\n• [Takeaway 3]\n\n💬 What's your experience with [topic]? Drop a comment below.\n\n#LinkedIn #Professional #Growth";
+            } else {
+                linkedin = "🚀 [Exciting announcement/topic]\n\nI've been working on something, and wanted to share:\n\n" + content.substring(0, 1500) + "\n\n---\n\nWould love to hear your thoughts!\n\n#Professional #Learning #Growth";
+            }
+            
+            return linkedin;
+        }
+        
+        function generateInstagram(content) {
+            let insta = '';
+            
+            // Extract key phrases
+            const keyPoints = content.split(/[•\n]/).filter(l => l.trim()).slice(0, 5);
+            
+            insta = "✨ [Eye-catching hook]\n\n";
+            keyPoints.forEach((point, i) => {
+                insta += `${i + 1}. ${point.trim().substring(0, 80)}\n`;
+            });
+            
+            insta += "\n💾 Save for later!\n\n👤 Follow for more tips\n\n#Content #Tips #Growth #Motivation";
+            
+            return insta;
+        }
+        
+        function generateEmail(content) {
+            let email = `Subject: ${currentFormat === 'thread' ? '🧵 My thoughts on [topic]' : 'Quick tip I wanted to share'}\n\n`;
+            email += "Hey there,\n\n";
+            email += "Hope you're having a great week!\n\n";
+            email += "I wanted to share some quick thoughts:\n\n";
+            email += content.substring(0, 800) + "\n\n";
+            email += "---\n\n";
+            email += "That's it for now!\n\n";
+            email += "Questions? Just reply to this email.\n\n";
+            email += "Best,\n[Your Name]";
+            
+            return email;
+        }
+        
+        function copyOutput(elementId) {
+            const content = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(content);
+            alert('Copied to clipboard!');
+        }
+        
+        function clearAll() {
+            document.getElementById('originalContent').value = '';
+            document.getElementById('twitterOutput').textContent = 'Generated content will appear here...';
+            document.getElementById('linkedinOutput').textContent = 'Generated content will appear here...';
+            document.getElementById('instagramOutput').textContent = 'Generated content will appear here...';
+            document.getElementById('emailOutput').textContent = 'Generated content will appear here...';
+        }
+    </script>
+</body>
+</html>
