@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Calendar Planner</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #4ecdc4; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #4ecdc4; color: #1a1a2e; }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        @media (max-width: 900px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .day-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 12px;
+            min-height: 100px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .day-card.today {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+        .day-card .date {
+            font-size: 12px;
+            color: #4ecdc4;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .day-card .content-item {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+        .day-card .content-item:hover {
+            background: rgba(78, 205, 196, 0.2);
+        }
+        
+        .platform-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-right: 4px;
+        }
+        .platform-tag.twitter { background: #1da1f2; }
+        .platform-tag.instagram { background: #e1306c; }
+        .platform-tag.linkedin { background: #0077b5; }
+        .platform-tag.youtube { background: #ff0000; }
+        .platform-tag.tiktok { background: #000; }
+        
+        .add-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+        @media (max-width: 768px) { .add-form { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Content Calendar</h1>
+        <p class="subtitle">Plan your content for the week</p>
+        
+        <div class="card">
+            <div class="add-form">
+                <div>
+                    <label>Content</label>
+                    <input type="text" id="content" placeholder="e.g., Post about AI tools">
+                </div>
+                <div>
+                    <label>Platform</label>
+                    <select id="platform">
+                        <option value="twitter">Twitter</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Date</label>
+                    <input type="date" id="date">
+                </div>
+                <button class="btn-primary" onclick="addContent()">Add</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>This Week's Content</label>
+            <div class="grid" id="calendar">
+                <!-- Calendar days will be generated here -->
+            </div>
+        </div>
+        
+        <div class="card">
+            <button class="btn-secondary" onclick="clearAll()">Clear All</button>
+            <button class="btn-secondary" onclick="exportData()">Export</button>
+        </div>
+    </div>
+
+    <script>
+        let contentData = JSON.parse(localStorage.getItem('contentCalendar') || '[]');
+        
+        // Set default date to today
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        
+        function renderCalendar() {
+            const container = document.getElementById('calendar');
+            const today = new Date();
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            
+            let html = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(weekStart.getDate() + i);
+                
+                const dateStr = date.toISOString().split('T')[0];
+                const isToday = date.toDateString() === today.toDateString();
+                const dayContent = contentData.filter(c => c.date === dateStr);
+                
+                html += `
+                    <div class="day-card ${isToday ? 'today' : ''}">
+                        <div class="date">${days[i]} ${date.getDate()}</div>
+                        ${dayContent.map(c => `
+                            <div class="content-item" onclick="deleteContent('${c.id}')">
+                                <span class="platform-tag ${c.platform}">${c.platform}</span>
+                                ${c.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function addContent() {
+            const text = document.getElementById('content').value.trim();
+            const platform = document.getElementById('platform').value;
+            const date = document.getElementById('date').value;
+            
+            if (!text || !date) {
+                alert('Please enter content and select a date');
+                return;
+            }
+            
+            contentData.push({
+                id: Date.now(),
+                text,
+                platform,
+                date
+            });
+            
+            saveData();
+            renderCalendar();
+            
+            document.getElementById('content').value = '';
+        }
+        
+        function deleteContent(id) {
+            if (confirm('Delete this content?')) {
+                contentData = contentData.filter(c => c.id !== id);
+                saveData();
+                renderCalendar();
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('contentCalendar', JSON.stringify(contentData));
+        }
+        
+        function clearAll() {
+            if (confirm('Clear all content?')) {
+                contentData = [];
+                saveData();
+                renderCalendar();
+            }
+        }
+        
+        function exportData() {
+            const blob = new Blob([JSON.stringify(contentData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'content-calendar.json';
+            a.click();
+        }
+        
+        renderCalendar();
+    </script>
+</body>
+</html>
