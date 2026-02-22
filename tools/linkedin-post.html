@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Post Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #0077b5; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #0077b5; color: #fff; }
+        .btn-primary:hover { background: #005885; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .post-output {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            color: #000;
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 200px;
+        }
+        .post-output .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .post-output .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0077b5, #00a0dc);
+        }
+        .post-output .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .post-output .title-role {
+            font-size: 12px;
+            color: #666;
+        }
+        .post-output .content {
+            white-space: pre-wrap;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #0077b5;
+        }
+        
+        .preview-box {
+            background: #0a66c2;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: inline-block;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #0077b5; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💼 LinkedIn Post Generator</h1>
+        <p class="subtitle">Create professional LinkedIn content</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Topic / Main Idea</label>
+                    <input type="text" id="topic" placeholder="e.g., leadership, AI tools, career growth">
+                    
+                    <label>Post Style</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setStyle('achievement')">🏆 Achievement</button>
+                        <button class="style-btn" onclick="setStyle('lesson')">💡 Lesson</button>
+                        <button class="style-btn" onclick="setStyle('story')">📖 Story</button>
+                        <button class="style-btn" onclick="setStyle('advice')">🎯 Advice</button>
+                        <button class="style-btn" onclick="setStyle('opinion')">💬 Opinion</button>
+                    </div>
+                    
+                    <label>Include</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="toggleEmoji()">😀 Emojis</button>
+                        <button class="style-btn active" onclick="toggleHashtags()"># Hashtags</button>
+                        <button class="style-btn active" onclick="toggleCTA()">🎯 CTA</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generatePost()">Generate Post</button>
+                        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="charCount">0</div>
+                            <div class="label">Characters</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number" id="readTime">0</div>
+                            <div class="label">Min Read</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Preview</label>
+                    <div class="post-output" id="postOutput">
+                        <div class="header">
+                            <div class="avatar"></div>
+                            <div>
+                                <div class="name">Your Name</div>
+                                <div class="title-role">Your Title | Company</div>
+                            </div>
+                        </div>
+                        <div class="content" id="postContent">Your post will appear here...</div>
+                    </div>
+                    
+                    <button class="btn-copy" style="width: 100%; margin-top: 15px;" onclick="copyPost()">Copy Post</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>📝 LinkedIn Tips</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>Hook in first line:</strong> Most people see only the first 2-3 lines</li>
+                <li><strong>Add line breaks:</strong> Short paragraphs perform better</li>
+                <li><strong>Use 3-5 hashtags:</strong> #LinkedIn #Industry #Growth</li>
+                <li><strong>End with a question:</strong> Increases comments significantly</li>
+                <li><strong>Keep it under 1300 chars:</strong> Longer posts get less engagement</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentStyle = 'achievement';
+        let includeEmoji = true;
+        let includeHashtags = true;
+        let includeCTA = true;
+        
+        const postTemplates = {
+            achievement: [
+                "I just achieved {milestone}! 🎉\n\nIt wasn't easy. There were many late nights and early mornings.\n\nBut looking back, here's what I learned:\n\n→ {lesson1}\n→ {lesson2}\n→ {lesson3}\n\nTo everyone chasing their goals: Keep going. It will be worth it.\n\nWhat's your biggest takeaway from achieving a goal? 👇",
+                "{milestone} - A thread 🧵\n\nI'm excited to share that {achievement}!\n\nHere's what it took:\n\n{lessons}\n\nGrateful for everyone who supported me along the way.\n\nWhat milestone are you working towards? Let's discuss 👇",
+                "After {timeframe}, I finally did it! ✨\n\n{milestone}\n\nThe journey wasn't straightforward. I faced:\n\n→ {challenge1}\n→ {challenge2}\n\nBut I kept going. And now I'm here.\n\nTo those still on their path: Don't give up.\n\n#Growth #Achievement #Motivation"
+            ],
+            lesson: [
+                "A lesson that changed my career: {lesson}\n\nI used to think {oldBelief}.\n\nThen I learned {newInsight}.\n\nAnd everything changed.\n\nHere's what I realized:\n\n→ {realization}\n\nWhat's a lesson that changed your perspective? 👇",
+                "3 lessons I learned the hard way:\n\n1/ {lesson1}\n\n2/ {lesson2}\n\n3/ {lesson3}\n\nWhich one resonates most with you? 💭\n\n#Learning #Growth #Career",
+                "The best career advice I ever received:\n\n\"{advice}\"\n\nAt first, I didn't understand.\n\nBut after years of experience, it finally clicked.\n\n{elaboration}\n\nWhat's the best advice you've received? 👇"
+            ],
+            story: [
+                "The story of how I {storyTitle}:\n\nIt started when {beginning}.\n\nAt first, I thought {initialThought}.\n\nBut then {turningPoint}.\n\nNow {outcome}.\n\nThe biggest lesson? {lesson}.\n\nHave you had a similar experience? 💭",
+                "A moment that changed everything:\n\n{story}\n\nI never expected {unexpected}.\n\nBut looking back, I'm grateful for {grateful}.\n\nHere's what I learned:\n\n→ {learn}\n\nWhat's a moment that changed your path? 👇",
+                "From {start} to {end}:\n\nMy journey wasn't linear. There were failures, doubts, and setbacks.\n\nBut I kept going.\n\n{journey}\n\nNow I'm sharing this because:\n\n→ {reason}\n\nWhat's your journey? Let's connect 👇"
+            ],
+            advice: [
+                "Want to succeed in {topic}? Here's what works:\n\n1/ {advice1}\n\n2/ {advice2}\n\n3/ {advice3}\n\nSave this for later! 📌\n\nWhat's your #1 tip for {topic}? 👇",
+                "Stop doing {mistake}!\n\nHere's why:\n\n{reason}\n\nInstead, try {alternative}:\n\n→ {tip}\n\nYour career will thank you.\n\nAgree or disagree? 💬",
+                "5 things I wish I knew about {topic}:\n\n1/ {fact1}\n2/ {fact2}\n3/ {fact3}\n4/ {fact4}\n5/ {fact5}\n\nWhich one is most surprising? 👀\n\n#Tips #Growth #Professional"
+            ],
+            opinion: [
+                "Unpopular opinion: {opinion}\n\nI know many will disagree. But hear me out:\n\n{reasoning}\n\n{conclusion}\n\nWhat's your take? 👇\n\n#Career #Professional #Growth",
+                "Hot take: {hotTake}\n\nHere's why I believe this:\n\n{argument}\n\n{challenge}\n\nReady for the debate in comments 💬",
+                "The truth about {topic}:\n\nMost people don't talk about this because {reason}.\n\nBut here's the reality:\n\n{truth}\n\nAre you ready to face it?\n\n#Honest #Career #Growth"
+            ]
+        };
+        
+        const hashtags = ['#LinkedIn', '#Career', '#Growth', '#Professional', '#Leadership', '#Success'];
+        
+        const ctaPhrases = [
+            "What's your experience? Share below 👇",
+            "Let's discuss in the comments! 💬",
+            "Agree or disagree? I'd love to hear your thoughts.",
+            "Drop your perspective below! 👇",
+            "Share this with someone who needs to see it!"
+        ];
+        
+        function setStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-select:first-child .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function toggleEmoji() {
+            includeEmoji = !includeEmoji;
+            event.target.classList.toggle('active');
+        }
+        
+        function toggleHashtags() {
+            includeHashtags = !includeHashtags;
+            event.target.classList.toggle('active');
+        }
+        
+        function toggleCTA() {
+            includeCTA = !includeCTA;
+            event.target.classList.toggle('active');
+        }
+        
+        function generatePost() {
+            const topic = document.getElementById('topic').value.trim() || 'this';
+            const templates = postTemplates[currentStyle];
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            
+            const data = {
+                topic: topic,
+                milestone: 'reached ' + topic,
+                achievement: 'achieved a major milestone with ' + topic,
+                lesson: topic + ' takes time and patience',
+                lessons: '→ Focus on the fundamentals\n→ Stay consistent\n→ Never stop learning',
+                lesson1: topic + ' requires consistency',
+                lesson2: 'networking matters more than you think',
+                lesson3: 'learning never stops',
+                oldBelief: 'working harder was enough',
+                newInsight: 'working smarter + building relationships',
+                realization: 'community amplifies success',
+                advice: 'focus on value, not just skills',
+                elaboration: 'When you help others succeed, opportunities come to you.',
+                storyTitle: 'mastered ' + topic,
+                beginning: 'I started with nothing but determination',
+                initialThought: 'it would be easy',
+                turningPoint: 'I learned to ask for help',
+                outcome: 'I can help others do the same',
+                challenge1: 'self-doubt',
+                challenge2: 'lack of resources',
+                unexpected: 'the biggest support came from strangers',
+                grateful: 'every obstacle',
+                learn: 'to embrace the journey',
+                start: 'zero',
+                end: 'where I am today',
+                journey: 'Every step taught me something valuable.',
+                reason: 'your journey might inspire someone',
+                tip: 'focus on long-term value',
+                mistake: 'chasing shortcuts',
+                reason: 'shortcuts lead nowhere',
+                alternative: 'investing in genuine skills',
+                fact1: 'It takes longer than expected',
+                fact2: 'Networking is essential',
+                fact3: 'Failure is part of the process',
+                fact4: 'Soft skills matter',
+                fact5: 'Consistency beats talent',
+                opinion: topic + ' is overrated',
+                reasoning: 'Many focus on the wrong things.',
+                conclusion: 'Focus on what truly matters.',
+                hotTake: topic + ' needs a complete rethink',
+                argument: 'The current approach isn\'t working.',
+                challenge: 'What if there\'s a better way?',
+                topic: topic,
+                reason: 'it\'s uncomfortable',
+                truth: 'Real growth comes from facing challenges head-on.',
+                timeframe: 'months of hard work',
+                challenge: 'doubts and setbacks'
+            };
+            
+            let post = template
+                .replace(/{(\w+)}/g, (match, key) => data[key] || match);
+            
+            // Add hashtags
+            if (includeHashtags) {
+                const selectedTags = hashtags.slice(0, 4).join(' ');
+                post += '\n\n' + selectedTags;
+            }
+            
+            // Add CTA
+            if (includeCTA) {
+                const cta = ctaPhrases[Math.floor(Math.random() * ctaPhrases.length)];
+                post += '\n\n' + cta;
+            }
+            
+            // Remove emojis if disabled
+            if (!includeEmoji) {
+                post = post.replace(/[^\x00-\x7F]/g, '');
+            }
+            
+            displayPost(post);
+        }
+        
+        function displayPost(post) {
+            document.getElementById('postContent').textContent = post;
+            document.getElementById('charCount').textContent = post.length;
+            document.getElementById('readTime').textContent = Math.ceil(post.length / 1000);
+        }
+        
+        function copyPost() {
+            const post = document.getElementById('postContent').textContent;
+            navigator.clipboard.writeText(post);
+            alert('Post copied!');
+        }
+        
+        function clearAll() {
+            document.getElementById('topic').value = '';
+            document.getElementById('postContent').textContent = 'Your post will appear here...';
+            document.getElementById('charCount').textContent = '0';
+            document.getElementById('readTime').textContent = '0';
+        }
+    </script>
+</body>
+</html>
