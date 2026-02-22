@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Caption Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #e1306c; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #e1306c; color: #fff; }
+        .btn-primary:hover { background: #c13584; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .caption-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #e1306c;
+        }
+        .caption-type {
+            color: #e1306c;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .caption-text {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #e1306c;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .preview-box {
+            background: #000;
+            border-radius: 16px;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .preview-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        .preview-username { font-weight: 600; font-size: 14px; }
+        .preview-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            color: #a0a0a0;
+        }
+        .preview-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .preview-caption {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .preview-caption .username {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        .hashtags {
+            color: #00376b;
+            margin-top: 8px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #e1306c; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+        
+        .emoji-btn {
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+        .emoji-btn:hover { transform: scale(1.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Instagram Caption Generator</h1>
+        <p class="subtitle">Create engaging Instagram captions & posts</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Topic / Main Idea</label>
+                    <input type="text" id="topic" placeholder="e.g., morning routine, fitness journey, product launch">
+                    
+                    <label>Caption Style</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setStyle('story')">📖 Story</button>
+                        <button class="style-btn" onclick="setStyle('list')">📋 List</button>
+                        <button class="style-btn" onclick="setStyle('question')">❓ Question</button>
+                        <button class="style-btn" onclick="setStyle('humor')">😂 Humor</button>
+                        <button class="style-btn" onclick="setStyle('professional')">💼 Professional</button>
+                    </div>
+                    
+                    <label>Include</label>
+                    <div class="style-select">
+                        <button class="style-btn active" id="hashtagsBtn" onclick="toggleHashtags()"># Hashtags</button>
+                        <button class="style-btn active" id="emojisBtn" onclick="toggleEmojis()">😀 Emojis</button>
+                        <button class="style-btn active" id="ctaBtn" onclick="toggleCTA()">🎯 CTA</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateCaption()">Generate Caption</button>
+                        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="charCount">0</div>
+                            <div class="label">Characters</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number" id="hashtagCount">0</div>
+                            <div class="label">Hashtags</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Generated Caption</label>
+                    <div id="captionOutput">
+                        <p style="color: #a0a0a0; text-align: center; padding: 20px;">Your caption will appear here...</p>
+                    </div>
+                    
+                    <button class="btn-copy" style="width: 100%;" onclick="copyCaption()">Copy Caption</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Live Preview</label>
+            <div class="preview-box">
+                <div class="preview-header">
+                    <div class="preview-avatar"></div>
+                    <span class="preview-username">your_username</span>
+                </div>
+                <div class="preview-image">📷 Your Image</div>
+                <div class="preview-actions">
+                    <span>❤️</span><span>💬</span><span>🚀</span>
+                </div>
+                <div class="preview-caption">
+                    <span class="username">your_username</span>
+                    <span id="previewText">Your caption will appear here...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStyle = 'story';
+        let includeHashtags = true;
+        let includeEmojis = true;
+        let includeCTA = true;
+        
+        const captionTemplates = {
+            story: [
+                "✨ {topic}\n\nIt's been quite a journey. A few months ago, I decided to {action}.\n\nAt first, {challenge}. But I kept going.\n\nNow? {result}.\n\nThe biggest lesson I learned? {lesson}.\n\nWhat's your experience? 👇",
+                "The story behind {topic} 🦋\n\nIt started when {beginning}.\n\nI never imagined {outcome}.\n\nIf you're thinking about starting {topic}, here's what I wish I knew:\n\n1. {tip1}\n2. {tip2}\n3. {tip3}\n\nKeep going. It gets better. ✨",
+                "{topic} - a thread 🧵\n\nEver wonder what it's like? Let me tell you...\n\n{story}\n\nThe turning point was when {turning}.\n\nNow I'm here to share what I learned:\n\n→ {learn}\n\nHave you been through something similar? 💭"
+            ],
+            list: [
+                "5 things about {topic} you didn't know 👇\n\n1/ {fact1}\n2/ {fact2}\n3/ {fact3}\n4/ {fact4}\n5/ {fact5}\n\nSave this! 🔖\n\n#niche #tips #learn",
+                "✨ 3 {topic} tips that changed everything:\n\n01. {tip1}\n\n02. {tip2}\n\n03. {tip3}\n\nWhich one resonates most? 👀\n\n#niche #growth #tips",
+                "{topic} tips ranking:🧵\n\nMost useful → Least useful:\n\n5. {tip5}\n4. {tip4}\n3. {tip3}\n2. {tip2}\n1. {tip1}\n\nWhat's your ranking? 👇",
+                "10 things I wish I knew about {topic}:\n\n1. {fact1}\n2. {fact2}\n3. {fact3}\n4. {fact4}\n5. {fact5}\n6. {fact6}\n7. {fact7}\n8. {fact8}\n9. {fact9}\n10. {fact10}\n\nSave for later! 💾"
+            ],
+            question: [
+                "What's your take on {topic}? 🤔\n\nI've been thinking about this lately and I'm curious:\n\n→ Do you agree or disagree?\n\nDrop your thoughts below 👇",
+                "Poll: {question}\n\nA) {option1}\nB) {option2}\n\nVote now! 🗳️\n\n#niche #community",
+                "I need YOUR help with {topic} 🙏\n\nWhat's the #1 struggle you're facing?\n\nDrop it in the comments - I'll read every single one!\n\n#niche #help",
+                "Hot take on {topic} 🔥\n\nDo you agree?\n\nYes 👇\nNo 👇\n\nLet's debate! 💬"
+            ],
+            humor: [
+                "Me: I'll just post about {topic}\n\nAlso me 3 hours later:\n\n{funny}\n\nAnyone else? 😂\n\n#niche #relatable",
+                "POV: You're obsessed with {topic} 😅\n\n{funny}\n\nSend help. Or don't. It's too late for me.\n\n#niche #lifestyle",
+                "When your friend asks about {topic} 😂\n\n{funny}\n\nTag someone who needs to see this!",
+                "POV: {topic} is your personality now 😄\n\n{funny}\n\nThis is so me lol\n\n#niche #relatable"
+            ],
+            professional: [
+                "{topic}: A Strategic Overview 📊\n\nKey takeaways from my latest project:\n\n→ {point1}\n→ {point2}\n→ {point3}\n\nWould love to hear your thoughts on this approach.\n\n#niche #business #strategy",
+                "3 lessons from {topic}:\n\n1. {lesson1}\n2. {lesson2}\n3. {lesson3}\n\nThese insights have transformed my approach to {niche}.\n\nWhat's been your biggest learning? 👇\n\n#professional #growth",
+                "The {topic} framework that works:\n\nStep 1: {step1}\nStep 2: {step2}\nStep 3: {step3}\n\nSave this post for later! 📌\n\n#niche #framework #tips"
+            ]
+        };
+        
+        const hashtags = [
+            '#niche', '#growth', '#motivation', '#success', '#inspiration',
+            '#learning', '#tips', '#lifestyle', '#goals', '#mindset'
+        ];
+        
+        const ctaPhrases = [
+            "Save this post for later! 📌",
+            "Follow for more tips! 🚀",
+            "Share with a friend who needs this! 💫",
+            "Tag someone who should see this! 👥",
+            "Drop a ❤️ if you agree!",
+            "Comment your thoughts below! 💭"
+        ];
+        
+        function setStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            // Only style buttons (first 5)
+            const styleBtns = document.querySelectorAll('.style-select:first-child .style-btn');
+            styleBtns.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(style)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        function toggleHashtags() {
+            includeHashtags = !includeHashtags;
+            document.getElementById('hashtagsBtn').classList.toggle('active');
+        }
+        
+        function toggleEmojis() {
+            includeEmojis = !includeEmojis;
+            document.getElementById('emojisBtn').classList.toggle('active');
+        }
+        
+        function toggleCTA() {
+            includeCTA = !includeCTA;
+            document.getElementById('ctaBtn').classList.toggle('active');
+        }
+        
+        function generateCaption() {
+            const topic = document.getElementById('topic').value.trim() || 'this';
+            const templates = captionTemplates[currentStyle];
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            
+            let caption = template
+                .replace(/{topic}/g, topic)
+                .replace(/{niche}/g, topic)
+                .replace(/{action}/g, 'started this journey')
+                .replace(/{challenge}/g, 'it was hard')
+                .replace(/{result}/g, 'it was worth it')
+                .replace(/{lesson}/g, 'consistency is key')
+                .replace(/{beginning}/g, 'everything changed')
+                .replace(/{outcome}/g, 'I learned so much')
+                .replace(/{tip1}/g, 'Start small')
+                .replace(/{tip2}/g, 'Stay consistent')
+                .replace(/{tip3}/g, 'Never give up')
+                .replace(/{turning}/g, 'I decided to keep going')
+                .replace(/{learn}/g, 'to enjoy the process')
+                .replace(/{fact1}/g, 'This is amazing')
+                .replace(/{fact2}/g, 'Nobody talks about this')
+                .replace(/{fact3}/g, 'It changed my life')
+                .replace(/{fact4}/g, 'You need this tip')
+                .replace(/{fact5}/g, 'Game changer')
+                .replace(/{fact6}/g, 'Must know this')
+                .replace(/{fact7}/g, 'Essential knowledge')
+                .replace(/{fact8}/g, 'Super useful')
+                .replace(/{fact9}/g, 'Never forget this')
+                .replace(/{fact10}/g, 'Final tip')
+                .replace(/{question}/g, 'What do you think about ' + topic + '?')
+                .replace(/{option1}/g, 'Yes, definitely')
+                .replace(/{option2}/g, 'No, not really')
+                .replace(/{story}/g, 'Something unexpected happened')
+                .replace(/{funny}/g, "It's giving main character energy")
+                .replace(/{point1}/g, 'Strategy matters')
+                .replace(/{point2}/g, 'Execution is key')
+                .replace(/{point3}/g, 'Consistency wins')
+                .replace(/{lesson1}/g, 'Lesson one')
+                .replace(/{lesson2}/g, 'Lesson two')
+                .replace(/{lesson3}/g, 'Lesson three')
+                .replace(/{step1}/g, 'Plan')
+                .replace(/{step2}/g, 'Execute')
+                .replace(/{step3}/g, 'Review');
+            
+            // Add hashtags
+            if (includeHashtags) {
+                const selectedTags = hashtags.slice(0, 5).join(' ');
+                caption += '\n\n' + selectedTags;
+            }
+            
+            // Add CTA
+            if (includeCTA) {
+                const cta = ctaPhrases[Math.floor(Math.random() * ctaPhrases.length)];
+                caption += '\n\n' + cta;
+            }
+            
+            // Remove some emojis if disabled
+            if (!includeEmojis) {
+                caption = caption.replace(/[^\x00-\x7F]/g, '');
+            }
+            
+            displayCaption(caption);
+        }
+        
+        function displayCaption(caption) {
+            const output = document.getElementById('captionOutput');
+            output.innerHTML = `<div class="caption-box">
+                <div class="caption-type">${currentStyle} Style</div>
+                <div class="caption-text">${escapeHtml(caption)}</div>
+            </div>`;
+            
+            // Update preview
+            document.getElementById('previewText').textContent = caption;
+            
+            // Update stats
+            document.getElementById('charCount').textContent = caption.length;
+            document.getElementById('hashtagCount').textContent = (caption.match(/#/g) || []).length;
+        }
+        
+        function escapeHtml(text) {
+            return text;
+        }
+        
+        function copyCaption() {
+            const text = document.getElementById('previewText').textContent;
+            navigator.clipboard.writeText(text);
+            alert('Caption copied!');
+        }
+        
+        function clearAll() {
+            document.getElementById('topic').value = '';
+            document.getElementById('captionOutput').innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Your caption will appear here...</p>';
+            document.getElementById('previewText').textContent = 'Your caption will appear here...';
+            document.getElementById('charCount').textContent = '0';
+            document.getElementById('hashtagCount').textContent = '0';
+        }
+    </script>
+</body>
+</html>
