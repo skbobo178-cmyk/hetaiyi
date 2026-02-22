@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Library</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #9333ea; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #9333ea; color: #fff; }
+        .btn-primary:hover { background: #7e22ce; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        
+        .prompt-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #9333ea;
+        }
+        .prompt-card:hover {
+            background: rgba(147, 51, 234, 0.15);
+        }
+        .prompt-card .category {
+            color: #9333ea;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .prompt-card .title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .prompt-card .prompt {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            max-height: 100px;
+            overflow: hidden;
+        }
+        
+        .category-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .category-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #9333ea;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Prompt Library</h1>
+        <p class="subtitle">Copy-paste ready prompts for ChatGPT, Claude, and more</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Category</label>
+                    <div class="category-select">
+                        <button class="category-btn active" onclick="filterBy('all')">All</button>
+                        <button class="category-btn" onclick="filterBy('writing')">✍️ Writing</button>
+                        <button class="category-btn" onclick="filterBy('coding')">💻 Coding</button>
+                        <button class="category-btn" onclick="filterBy('marketing')">📢 Marketing</button>
+                        <button class="category-btn" onclick="filterBy('business')">💼 Business</button>
+                    </div>
+                    
+                    <label>Search</label>
+                    <input type="text" id="search" placeholder="Search prompts..." oninput="searchPrompts()">
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Prompts</label>
+                    <div id="promptsList">
+                        <!-- Prompts will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const prompts = [
+            {
+                category: "writing",
+                title: "Blog Post Generator",
+                prompt: `Write a complete blog post about [TOPIC].
+
+Requirements:
+- SEO optimized with keyword [KEYWORD]
+- 1500-2000 words
+- Engaging introduction
+- H2 and H3 headings
+- Actionable conclusion
+- Include 3-5 FAQs at the end`
+            },
+            {
+                category: "writing",
+                title: "Copywriting Transformer",
+                prompt: `Transform this boring text into compelling copy:
+
+[BORING TEXT]
+
+Make it:
+- More engaging and persuasive
+- Use power words
+- Add emotional hooks
+- Include a clear CTA`
+            },
+            {
+                category: "writing",
+                title: "YouTube Script Writer",
+                prompt: `Write a YouTube video script about [TOPIC].
+
+Format:
+- Hook (first 15 seconds)
+- Problem statement
+- Main content (3-5 key points)
+- Call to action
+- End screen suggestions
+
+Duration: [X] minutes`
+            },
+            {
+                category: "coding",
+                title: "Code Explainer",
+                prompt: `Explain this code in simple terms:
+
+[PASTE CODE]
+
+Include:
+- What the code does
+- How it works
+- Key functions/methods
+- How to use it
+- Potential improvements`
+            },
+            {
+                category: "coding",
+                title: "Bug Fixer",
+                prompt: `Help me fix this bug:
+
+Error message:
+[ERROR]
+
+Code:
+[CODE]
+
+What I've tried:
+[ATTEMPTS]
+
+Provide the corrected code with explanation.`
+            },
+            {
+                category: "coding",
+                title: "Code Review",
+                prompt: `Review this code for:
+- Best practices
+- Security issues
+- Performance optimization
+- Readability
+- Potential bugs
+
+Code:
+[PASTE CODE]
+
+Provide specific improvements.`
+            },
+            {
+                category: "marketing",
+                title: "Social Media Calendar",
+                prompt: `Create a 30-day social media content calendar for [NICHE/BRAND].
+
+Include:
+- Platform (Twitter, Instagram, LinkedIn)
+- Content type
+- Topic/idea
+- Best time to post
+- Engagement tips`
+            },
+            {
+                category: "marketing",
+                title: "Ad Copy Generator",
+                prompt: `Write Facebook/Google ads for:
+
+Product: [PRODUCT NAME]
+Target Audience: [AUDIENCE]
+Goal: [CONVERSION GOAL]
+Budget: [BUDGET]
+
+Provide:
+- 5 headlines
+- 5 descriptions
+- Ad copy variations
+- A/B testing suggestions`
+            },
+            {
+                category: "marketing",
+                title: "Email Sequence",
+                prompt: `Create a welcome email sequence for [PRODUCT/SERVICE]:
+
+- Number of emails: [X]
+- Goal: [GOAL]
+- Tone: [TONE]
+
+Write each email with:
+- Subject line options
+- Preheader text
+- Body copy
+- CTA`
+            },
+            {
+                category: "business",
+                title: "Business Plan Outline",
+                prompt: `Create a business plan outline for [BUSINESS IDEA].
+
+Include:
+- Executive Summary
+- Problem/Solution
+- Market Analysis
+- Product/Service
+- Revenue Model
+- Marketing Strategy
+- Team
+- Financial Projections
+- Milestones`
+            },
+            {
+                category: "business",
+                title: "Competitor Analysis",
+                prompt: `Do a competitor analysis for [YOUR COMPANY] in [INDUSTRY].
+
+For each competitor:
+- Company name
+- Strengths
+- Weaknesses
+- Pricing
+- Marketing strategy
+- Target audience
+
+Provide actionable insights on how to beat them.`
+            },
+            {
+                category: "business",
+                title: "Meeting Agenda",
+                prompt: `Create a productive meeting agenda for:
+
+Meeting: [TITLE]
+Duration: [X] minutes
+Attendees: [WHO]
+
+Include:
+- Objectives
+- Discussion topics
+- Time allocation for each
+- Required prep
+- Expected outcomes`
+            },
+            {
+                category: "writing",
+                title: "Product Description",
+                prompt: `Write compelling product descriptions for [PRODUCT].
+
+Include:
+- Key features
+- Benefits (not just features)
+- Use cases
+- Target audience
+- SEO keywords: [KEYWORDS]
+
+Tone: [TONE]`
+            },
+            {
+                category: "marketing",
+                title: "SEO Keyword Strategy",
+                prompt: `Create an SEO keyword strategy for [WEBSITE/TOPIC].
+
+Include:
+- Primary keywords (high volume)
+- Secondary keywords (medium volume)
+- Long-tail keywords
+- LSI keywords
+- Content ideas for each keyword`
+            },
+            {
+                category: "writing",
+                title: "Press Release",
+                prompt: `Write a press release for:
+
+Announcement: [WHAT]
+Company: [NAME]
+Date: [DATE]
+
+Include:
+- Headline
+- Subheadline
+- Dateline
+- Body (who, what, when, where, why)
+- Quote
+- Boilerplate
+- Media contact`
+            }
+        ];
+        
+        let currentFilter = 'all';
+        
+        function renderPrompts(promptsToRender) {
+            const container = document.getElementById('promptsList');
+            
+            if (promptsToRender.length === 0) {
+                container.innerHTML = '<p style="color: #aaa; text-align: center; padding: 20px;">No prompts found</p>';
+                return;
+            }
+            
+            container.innerHTML = promptsToRender.map(p => `
+                <div class="prompt-card" onclick="copyPrompt(\`${escapeBackticks(prompt)}\`)">
+                    <div class="category">${p.category}</div>
+                    <div class="title">${p.title}</div>
+                    <div class="prompt">${p.prompt}</div>
+                </div>
+            `).join('');
+        }
+        
+        function escapeBackticks(text) {
+            return text.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+        }
+        
+        function filterBy(category) {
+            currentFilter = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let filtered = prompts;
+            if (category !== 'all') {
+                filtered = prompts.filter(p => p.category === category);
+            }
+            
+            renderPrompts(filtered);
+        }
+        
+        function searchPrompts() {
+            const query = document.getElementById('search').value.toLowerCase();
+            
+            let filtered = prompts;
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(p => p.category === currentFilter);
+            }
+            
+            if (query) {
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(query) ||
+                    p.prompt.toLowerCase().includes(query)
+                );
+            }
+            
+            renderPrompts(filtered);
+        }
+        
+        function copyPrompt(prompt) {
+            navigator.clipboard.writeText(prompt);
+            // Visual feedback
+            const cards = document.querySelectorAll('.prompt-card');
+            cards.forEach(card => {
+                if (card.querySelector('.prompt').textContent.includes(prompt.substring(0, 50))) {
+                    card.style.background = 'rgba(147, 51, 234, 0.3)';
+                    setTimeout(() => card.style.background = '', 300);
+                }
+            });
+        }
+        
+        // Initial render
+        renderPrompts(prompts);
+    </script>
+</body>
+</html>
