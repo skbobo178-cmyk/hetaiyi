@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorts/Reels Script Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #25f4ee; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #25f4ee; color: #000; }
+        .btn-primary:hover { background: #1edbd4; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .script-output {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+            border-left: 3px solid #25f4ee;
+        }
+        .script-output .timestamp {
+            color: #25f4ee;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .script-output .action {
+            color: #ffd700;
+            font-style: italic;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #25f4ee;
+            color: #000;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .template-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .template-card:hover {
+            background: rgba(37, 244, 238, 0.1);
+        }
+        .template-card .title {
+            color: #25f4ee;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .template-card .desc {
+            font-size: 13px;
+            color: #aaa;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #25f4ee; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Shorts/Reels Script Generator</h1>
+        <p class="subtitle">Create 60-second video scripts</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Topic</label>
+                    <input type="text" id="topic" placeholder="e.g., AI tools, productivity, fitness">
+                    
+                    <label>Platform</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setPlatform('tiktok')">TikTok</button>
+                        <button class="style-btn" onclick="setPlatform('reels')">Instagram Reels</button>
+                        <button class="style-btn" onclick="setPlatform('shorts')">YouTube Shorts</button>
+                    </div>
+                    
+                    <label>Script Type</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setType('list')">📋 List Format</button>
+                        <button class="style-btn" onclick="setType('story')">📖 Story</button>
+                        <button class="style-btn" onclick="setType('hook')">🪝 Hook</button>
+                        <button class="style-btn" onclick="setType('educational')">💡 Educational</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateScript()">Generate Script</button>
+                        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="duration">60</div>
+                            <div class="label">Seconds</div>
+                        </div>
+                        <div class="stat">
+                            <div class="number" id="wordCount">0</div>
+                            <div class="label">Words</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Script</label>
+                    <div class="script-output" id="scriptOutput">
+                        <p style="color: #aaa;">Your script will appear here...</p>
+                    </div>
+                    
+                    <button class="btn-copy" style="width: 100%; margin-top: 15px;" onclick="copyScript()">Copy Script</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>🎯 Script Structure (60 sec)</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>0-3 sec:</strong> HOOK - Grab attention immediately</li>
+                <li><strong>3-10 sec:</strong> Problem - Acknowledge the pain point</li>
+                <li><strong>10-50 sec:</strong> Solution - Give the value/content</li>
+                <li><strong>50-60 sec:</strong> CTA - Follow, like, comment</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentPlatform = 'tiktok';
+        let currentType = 'list';
+        
+        const scripts = {
+            list: [
+                {
+                    title: "5 Tips in 60 Seconds",
+                    hook: "5 " + "{topic}" + " tips that will change your life! 🔥",
+                    body: "1/ Stop doing " + "{topic}" + " the hard way\n\n2/ Start with " + "{tip1}" + "\n\n3/ Then try " + "{tip2}" + "\n\n4/ Don't forget " + "{tip3}" + "\n\n5/ Finally, " + "{tip4}",
+                    cta: "Save this! Follow for more tips! 🚀"
+                },
+                {
+                    title: "3 Things You Need",
+                    hook: "3 things about " + "{topic}" + " you didn't know 👀",
+                    body: "1/ " + "{fact1}" + "\n\n2/ " + "{fact2}" + "\n\n3/ " + "{fact3}" + "\n\nWhich one surprised you?",
+                    cta: "Follow for more! 💫"
+                }
+            ],
+            story: [
+                {
+                    title: "My Journey",
+                    hook: "How I mastered " + "{topic}" + " in 30 days 🧵",
+                    body: "Week 1: I was struggling with " + "{topic}" + "\n\nWeek 2: I tried " + "{approach}" + "\n\nWeek 3: Things started clicking\n\nWeek 4: I finally got it!",
+                    cta: "If I can do it, so can you. Follow for more! ✨"
+                },
+                {
+                    title: "From Zero to Hero",
+                    hook: "My " + "{topic}" + " journey (wait for it...)",
+                    body: "It started when " + "{beginning}" + "\n\nI had no idea what I was doing\n\nBut then " + "{turning}" + "\n\nNow I'm here to share what I learned",
+                    cta: "Follow - I'll be posting more stories! 📱"
+                }
+            ],
+            hook: [
+                {
+                    title: "Stop Doing This",
+                    hook: "Stop doing " + "{topic}" + " like this! ❌",
+                    body: "Most people get " + "{topic}" + " completely wrong\n\nThey're doing " + "{mistake}" + "\n\nInstead, try " + "{solution}" + "\n\nTrust me, it works",
+                    cta: "Follow for more tips! 🚀"
+                },
+                {
+                    title: "The Truth About",
+                    hook: "The truth about " + "{topic}" + " (no clickbait) 🔥",
+                    body: "Nobody talks about this because " + "{reason}" + "\n\nBut here's the reality:\n\n" + "{truth}" + "\n\nSave this for later! 📌",
+                    cta: "Follow for more honest content! 💯"
+                }
+            ],
+            educational: [
+                {
+                    title: "How-To Guide",
+                    hook: "How to master " + "{topic}" + " in 60 seconds ⏱️",
+                    body: "Step 1: " + "{step1}" + "\n\nStep 2: " + "{step2}" + "\n\nStep 3: " + "{step3}" + "\n\nThat's it! Simple but effective",
+                    cta: "Follow for more tutorials! 📚"
+                },
+                {
+                    title: "The Secret",
+                    hook: "The " + "{topic}" + " secret nobody tells you 🫢",
+                    body: "Most guides skip this part\n\nBut here's the deal:\n\n" + "{secret}" + "\n\nThis changed everything for me",
+                    cta: "Save this! Follow for more secrets! 🤫"
+                }
+            ]
+        };
+        
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.style-select:first-child .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.style-select:nth-child(2) .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateScript() {
+            const topic = document.getElementById('topic').value.trim() || 'this';
+            const template = scripts[currentType][Math.floor(Math.random() * scripts[currentType].length)];
+            
+            const platformEmojis = {
+                tiktok: '🎵',
+                reels: '📸',
+                shorts: '📺'
+            };
+            
+            const data = {
+                topic: topic,
+                tip1: 'focus on consistency',
+                tip2: 'learn from experts',
+                tip3: 'track your progress',
+                tip4: 'never give up',
+                fact1: topic + ' takes time',
+                fact2: 'consistency matters most',
+                fact3: 'results come from daily action',
+                approach: 'a different strategy',
+                beginning: 'I decided to try something new',
+                turning: 'everything changed',
+                mistake: 'the old way',
+                solution: 'this simple approach',
+                reason: "it's uncomfortable",
+                truth: 'real growth takes time and effort',
+                step1: 'Define your goal clearly',
+                step2: 'Take action daily',
+                step3: 'Review and adjust',
+                secret: 'The secret to success is simple: just start'
+            };
+            
+            let script = template.hook + '\n\n' + template.body + '\n\n' + template.cta;
+            
+            script = script.replace(/{(\w+)}/g, (match, key) => data[key] || match);
+            
+            displayScript(script);
+        }
+        
+        function displayScript(script) {
+            const lines = script.split('\n');
+            let html = '';
+            
+            lines.forEach((line, i) => {
+                let timestamp = Math.floor(i * 7.5); // ~7.5 sec per line
+                if (timestamp > 60) timestamp = 60;
+                
+                if (line.includes('/')) {
+                    html += `<div><span class="timestamp">[${timestamp}s]</span> <span class="action">${line}</span></div>`;
+                } else if (line.trim()) {
+                    html += `<div><span class="timestamp">[${timestamp}s]</span> ${line}</div>`;
+                }
+            });
+            
+            document.getElementById('scriptOutput').innerHTML = html;
+            
+            const words = script.split(/\s+/).length;
+            document.getElementById('wordCount').textContent = words;
+        }
+        
+        function copyScript() {
+            const html = document.getElementById('scriptOutput').innerText;
+            navigator.clipboard.writeText(html);
+            alert('Script copied!');
+        }
+        
+        function clearAll() {
+            document.getElementById('topic').value = '';
+            document.getElementById('scriptOutput').innerHTML = '<p style="color: #aaa;">Your script will appear here...</p>';
+            document.getElementById('wordCount').textContent = '0';
+        }
+    </script>
+</body>
+</html>
