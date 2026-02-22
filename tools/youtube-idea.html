@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Idea Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus { outline: none; border-color: #ff0000; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #ff0000; color: #fff; }
+        .btn-primary:hover { background: #cc0000; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .idea-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #ff0000;
+        }
+        .idea-card:hover {
+            background: rgba(255,0,0,0.15);
+            transform: translateX(5px);
+        }
+        .idea-card .category {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(255,0,0,0.2);
+            color: #ff0000;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .idea-card .title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .idea-card .desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.4;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #ff0000;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #ff0000; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 YouTube Video Idea Generator</h1>
+        <p class="subtitle">Generate viral YouTube video concepts</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Niche / Topic</label>
+                    <input type="text" id="niche" placeholder="e.g., tech reviews, gaming, education">
+                    
+                    <label>Video Type</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setType('tutorial')">🎓 Tutorial</button>
+                        <button class="style-btn" onclick="setType('review')">⭐ Review</button>
+                        <button class="style-btn" onclick="setType('list')">📋 List</button>
+                        <button class="style-btn" onclick="setType('vlog')">🎬 Vlog</button>
+                        <button class="style-btn" onclick="setType('reaction')">😮 Reaction</button>
+                    </div>
+                    
+                    <label>Number of Ideas</label>
+                    <select id="count">
+                        <option value="5">5 Ideas</option>
+                        <option value="10" selected>10 Ideas</option>
+                        <option value="15">15 Ideas</option>
+                    </select>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateIdeas()">Generate Ideas</button>
+                        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="ideaCount">0</div>
+                            <div class="label">Ideas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Video Ideas</label>
+                    <div id="ideasList">
+                        <p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a niche and click Generate!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>📝 YouTube Video Formats That Work</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>Tutorial:</strong> How-to guides, step-by-step learning</li>
+                <li><strong>Review:</strong> Product reviews, comparisons, honest opinions</li>
+                <li><strong>List:</strong> Top 10, 5 best, rankings</li>
+                <li><strong>Vlog:</strong> Day in life, behind the scenes, personal stories</li>
+                <li><strong>Reaction:</strong> React to news, other videos, trends</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'tutorial';
+        
+        const ideaTemplates = {
+            tutorial: [
+                "How to Master {niche} in 30 Days - Complete Guide",
+                "{niche} Tutorial for Beginners (2026 Updated)",
+                "The Ultimate {niche} Course - From Zero to Hero",
+                "Learn {niche} Fast: 10-Minute Tutorial",
+                "Advanced {niche} Techniques You Need to Know",
+                "{niche} 101: Everything You Need to Get Started",
+                "How I Learned {niche} - My Journey",
+                "Step by Step {niche} Guide for 2026",
+                "{niche} Mistakes You're Making (And How to Fix Them)",
+                "The Complete {niche} Handbook",
+                "Master {niche} With These Simple Hacks",
+                "{niche} Explained: Full Beginner Guide",
+                "How to Use {niche} Like a Pro",
+                "{niche} Training - Complete Course",
+                "The Only {niche} Tutorial You'll Ever Need"
+            ],
+            review: [
+                "Honest {niche} Review - Is It Worth It?",
+                "{niche} vs The Competition - Which is Better?",
+                "I Tried {niche} for 30 Days - Here's What Happened",
+                "{niche} Review: The Good, The Bad, The Ugly",
+                "Is {niche} Overrated? My Honest Opinion",
+                "{niche} After 1 Year - Long Term Review",
+                "Best {niche} in 2026 - Top Picks",
+                "{niche} Unboxing and First Impressions",
+                "Why I Stopped Using {niche}",
+                "{niche} vs The Rest - Full Comparison",
+                "The Truth About {niche} Nobody Tells You",
+                "{niche} Review: Should You Buy?",
+                "My Favorite {niche} - Honest Review",
+                "{niche} Breakdown: Is It Hype?",
+                "{niche} One Month Later - Real Results"
+            ],
+            list: [
+                "10 {niche} Tips That Changed My Life",
+                "5 {niche} Tools You Need in 2026",
+                "7 {niche} Mistakes You're Probably Making",
+                "Top 10 {niche} for Beginners",
+                "3 {niche} Strategies That Actually Work",
+                "The Ultimate {niche} List - Everything You Need",
+                "10 Things I Wish I Knew About {niche} Sooner",
+                "5 Best {niche} in 2026 - Ranked",
+                "8 {niche} Hacks for Maximum Results",
+                "Top 15 {niche} Resources",
+                "The 10 {niche} Rules You Need to Follow",
+                "Best {niche} Under $100",
+                "10 {niche} Trends to Watch in 2026",
+                "5 {niche} Secrets Experts Don't Tell You",
+                "Essential {niche} for Everyone"
+            ],
+            vlog: [
+                "A Day in My Life as a {niche} Creator",
+                "My {niche} Morning Routine 2026",
+                "Behind the Scenes: My {niche} Journey",
+                "What I Actually Do as a {niche}",
+                "My {niche} Studio Setup Tour",
+                "A Week in My Life: {niche} Edition",
+                "How I Started {niche} - My Story",
+                "My {niche} Work From Home Setup",
+                "The Reality of Being a {niche}",
+                "Day in the Life: {niche} Professional",
+                "My {niche} Journey - 1 Year Update",
+                "How I Balance Life and {niche}",
+                "My {niche} Daily Schedule",
+                "The Honest Truth About {niche}",
+                "From Beginner to Pro: {niche} Story"
+            ],
+            reaction: [
+                "Reacting to {niche} Trends 2026",
+                "Reacting to Old {niche} Videos",
+                "My Honest Reaction to {niche} Video",
+                "Reacting to {niche} Mistakes Compilation",
+                "I Can't Believe {niche} Did This",
+                "Reacting to {niche} Community",
+                "My Reaction to {niche} News",
+                "Reacting to {niche} Transformation",
+                "Shocking {niche} Moments Compilation",
+                "Reacting to {niche} Video Gone Wrong",
+                "My Reaction to {niche} viral video",
+                "Reacting to {niche} Before and After",
+                "Unpopular {niche} Opinions Reaction",
+                "Reacting to {niche} Expert Advice",
+                "My Reaction to {niche} Fail"
+            ]
+        };
+        
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateIdeas() {
+            const niche = document.getElementById('niche').value.trim() || 'this';
+            const count = parseInt(document.getElementById('count').value);
+            
+            const templates = ideaTemplates[currentType];
+            let ideas = shuffleArray([...templates]).slice(0, count);
+            
+            ideas = ideas.map(idea => ({
+                title: idea.replace(/{niche}/g, niche),
+                type: currentType
+            }));
+            
+            renderIdeas(ideas);
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderIdeas(ideas) {
+            const container = document.getElementById('ideasList');
+            
+            if (ideas.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a niche and click Generate!</p>';
+                return;
+            }
+            
+            container.innerHTML = ideas.map((idea, i) => `
+                <div class="idea-card" onclick="copyIdea('${escapeHtml(idea.title)}')">
+                    <div class="category">${idea.type}</div>
+                    <div class="title">${idea.title}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('ideaCount').textContent = ideas.length;
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function copyIdea(title) {
+            navigator.clipboard.writeText(title);
+            const cards = document.querySelectorAll('.idea-card');
+            cards.forEach(card => {
+                if (card.querySelector('.title').textContent === title) {
+                    card.style.background = 'rgba(255,0,0,0.3)';
+                    setTimeout(() => card.style.background = '', 300);
+                }
+            });
+        }
+        
+        function clearAll() {
+            document.getElementById('niche').value = '';
+            document.getElementById('ideasList').innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a niche and click Generate!</p>';
+            document.getElementById('ideaCount').textContent = '0';
+        }
+    </script>
+</body>
+</html>
