@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .goal-progress {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .goal-progress .name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .goal-progress .bar {
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .goal-progress .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Creator Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value">23</div>
+                <div class="label">Tools Created Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">43</div>
+                <div class="label">Total Tools</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">0</div>
+                <div class="label">X Posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">0</div>
+                <div class="label">Revenue</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🎯 Daily Goals</h3>
+            <div class="goal-progress">
+                <div class="name">
+                    <span>Create Tools</span>
+                    <span>23/10</span>
+                </div>
+                <div class="bar"><div class="fill" style="width: 100%"></div></div>
+            </div>
+            <div class="goal-progress">
+                <div class="name">
+                    <span>Push to GitHub</span>
+                    <span>23/1</span>
+                </div>
+                <div class="bar"><div class="fill" style="width: 100%"></div></div>
+            </div>
+            <div class="goal-progress">
+                <div class="name">
+                    <span>Post to X</span>
+                    <span>0/5</span>
+                </div>
+                <div class="bar"><div class="fill" style="width: 0%"></div></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>💡 Today's Summary</h3>
+            <p style="color: #ccc; line-height: 1.8;">
+                Created 23 tools for hetaiyi GitHub repo.<br>
+                All tools pushed and available online.<br>
+                Focus tomorrow: Post to X/TikTok to drive traffic.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
