@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Topic Finder</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus { outline: none; border-color: #ff0000; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #ff0000; color: #fff; }
+        .btn-primary:hover { background: #cc0000; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        
+        .topic-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #ff0000;
+        }
+        .topic-card .topic {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .topic-card .trend {
+            font-size: 12px;
+            color: #ff0000;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .category-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .category-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #ff0000;
+        }
+        
+        .tips {
+            background: rgba(255,0,0,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .tips h4 { color: #ff0000; margin-bottom: 10px; }
+        .tips ul { padding-left: 20px; color: #ccc; font-size: 14px; line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Trending Topic Finder</h1>
+        <p class="subtitle">Discover trending topics for your content</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Niche / Industry</label>
+                    <input type="text" id="niche" placeholder="e.g., tech, marketing, fitness">
+                    
+                    <label>Category</label>
+                    <div class="category-select">
+                        <button class="category-btn active" onclick="setCategory('all')">All</button>
+                        <button class="category-btn" onclick="setCategory('tech')">Tech</button>
+                        <button class="category-btn" onclick="setCategory('business')">Business</button>
+                        <button class="category-btn" onclick="setCategory('lifestyle')">Lifestyle</button>
+                        <button class="category-btn" onclick="setCategory('entertainment')">Entertainment</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateTopics()">Find Topics</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Trending Topics</label>
+                    <div id="topicsList">
+                        <p style="color: #aaa; text-align: center; padding: 20px;">Enter a niche and find trending topics!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tips">
+            <h4>💡 Tips for Trending Content</h4>
+            <ul>
+                <li><strong>Time it right:</strong> Post about trends within 24-48 hours</li>
+                <li><strong>Add your angle:</strong> Don't just repeat - add unique insights</li>
+                <li><strong>Use hashtags:</strong> Combine trending + niche hashtags</li>
+                <li><strong>Be quick:</strong> Trends move fast - act fast!</li>
+                <li><strong>Add value:</strong> Don't just capitalize - provide value</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentCategory = 'all';
+        
+        const trendingTopics = {
+            tech: [
+                { topic: "AI Agents 2026", trend: "🔥 Rising" },
+                { topic: "GPT-5 Release", trend: "📈 High" },
+                { topic: "Apple AI Features", trend: "🔥 Hot" },
+                { topic: "Claude 4", trend: "📈 Rising" },
+                { topic: "Gemini Ultra", trend: "📈 Growing" },
+                { topic: "OpenAI Updates", trend: "🔥 Hot" },
+                { topic: "AI Hardware", trend: "📈 Rising" },
+                { topic: "Robotics AI", trend: "📈 Growing" },
+                { topic: "AI Regulation", trend: "📰 News" },
+                { topic: "Custom GPTs", trend: "💡 Trending" }
+            ],
+            business: [
+                { topic: "Side Hustles 2026", trend: "🔥 Hot" },
+                { topic: "Passive Income", trend: "📈 Rising" },
+                { topic: "Remote Work Tools", trend: "📈 Growing" },
+                { topic: "AI Consulting", trend: "🔥 Hot" },
+                { topic: "Digital Products", trend: "📈 Rising" },
+                { topic: "Creator Economy", trend: "📈 Growing" },
+                { topic: "Startup Funding", trend: "📰 News" },
+                { topic: "Freelance Tips", trend: "💡 Popular" },
+                { topic: "SaaS Tools", trend: "📈 Rising" },
+                { topic: "E-commerce Trends", trend: "📈 Growing" }
+            ],
+            lifestyle: [
+                { topic: "Morning Routines", trend: "🔥 Hot" },
+                { topic: "Productivity Hacks", trend: "📈 Rising" },
+                { topic: "Minimalism", trend: "💡 Popular" },
+                { topic: "Digital Detox", trend: "📈 Growing" },
+                { topic: "Self Care Tips", trend: "📈 Rising" },
+                { topic: "Work Life Balance", trend: "💡 Popular" },
+                { topic: "Healthy Habits", trend: "📈 Growing" },
+                { topic: "Mindfulness", trend: "📈 Rising" },
+                { topic: "Personal Growth", trend: "💡 Popular" },
+                { topic: "Goal Setting", trend: "📈 Growing" }
+            ],
+            entertainment: [
+                { topic: "Viral Videos", trend: "🔥 Hot" },
+                { topic: "TikTok Trends", trend: "🔥 Hot" },
+                { topic: "Memes", trend: "📈 Rising" },
+                { topic: "Pop Culture", trend: "📈 Growing" },
+                { topic: "Gaming News", trend: "📈 Rising" },
+                { topic: "Music Releases", trend: "📰 News" },
+                { topic: "Movie Reviews", trend: "💡 Popular" },
+                { topic: "Celebrity News", trend: "📈 Growing" },
+                { topic: "Streaming Shows", trend: "📈 Rising" },
+                { topic: "Influencer Drama", trend: "🔥 Hot" }
+            ]
+        };
+        
+        const nicheTopics = {
+            tech: [
+                "Machine Learning", "Web Development", "Cybersecurity", "Cloud Computing", "Blockchain",
+                "Mobile Apps", "Data Science", "IoT", "AR/VR", "Quantum Computing"
+            ],
+            business: [
+                "Marketing", "Sales", "Leadership", "Finance", "Investing",
+                "Management", "Strategy", "Growth", "Entrepreneurship", "Careers"
+            ],
+            lifestyle: [
+                "Fitness", "Nutrition", "Travel", "Fashion", "Wellness",
+                "Relationships", "Parenting", "Home", "Personal Finance", "Spirituality"
+            ],
+            entertainment: [
+                "Movies", "Music", "Gaming", "Sports", "Television",
+                "Comedy", "Books", "Art", "Events", "Celebrities"
+            ]
+        };
+        
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateTopics() {
+            const niche = document.getElementById('niche').value.trim().toLowerCase() || 'general';
+            
+            let topics = [];
+            
+            // Get topics based on category
+            if (currentCategory === 'all') {
+                Object.values(trendingTopics).forEach(group => {
+                    topics = [...topics, ...group];
+                });
+            } else {
+                topics = trendingTopics[currentCategory] || trendingTopics.tech;
+            }
+            
+            // Add niche-specific topics
+            let nicheSpecific = [];
+            Object.keys(nicheTopics).forEach(key => {
+                if (niche.includes(key) || currentCategory === 'all') {
+                    nicheSpecific = [...nicheSpecific, ...nicheTopics[key]];
+                }
+            });
+            
+            // Add general trending
+            const generalTrending = [
+                { topic: "2026 Predictions", trend: "📈 Rising" },
+                { topic: "New Year Goals", trend: "💡 Popular" },
+                { topic: "Quick Tips", trend: "📈 Growing" },
+                { topic: "Beginner's Guide", trend: "💡 Popular" },
+                { topic: "Common Mistakes", trend: "📈 Growing" },
+                { topic: "Expert Advice", trend: "💡 Popular" },
+                { topic: "Tools & Resources", trend: "📈 Rising" },
+                { topic: "How-To Guide", trend: "📈 Growing" },
+                { topic: "Behind The Scenes", trend: "💡 Popular" },
+                { topic: "Industry News", trend: "📰 News" }
+            ];
+            
+            topics = [...topics, ...generalTrending];
+            
+            // Shuffle
+            topics = shuffleArray(topics).slice(0, 15);
+            
+            renderTopics(topics);
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderTopics(topics) {
+            const container = document.getElementById('topicsList');
+            
+            container.innerHTML = topics.map(t => `
+                <div class="topic-card" onclick="copyTopic('${t.topic}')">
+                    <span class="topic">${t.topic}</span>
+                    <span class="trend">${t.trend}</span>
+                </div>
+            `).join('');
+        }
+        
+        function copyTopic(topic) {
+            navigator.clipboard.writeText(topic);
+        }
+    </script>
+</body>
+</html>
