@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio & Link in Bio Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #833ab4; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #833ab4; color: #fff; }
+        .btn-primary:hover { background: #6c2d9e; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .bio-output {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 3px solid #833ab4;
+        }
+        .bio-output .platform {
+            color: #833ab4;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .bio-output .text {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #833ab4;
+        }
+        
+        .platform-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .platform-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .platform-btn:hover, .platform-btn.active {
+            border-color: #833ab4;
+        }
+        
+        .preview-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            color: #000;
+            text-align: center;
+        }
+        .preview-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045);
+            margin: 0 auto 15px;
+        }
+        .preview-username {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .preview-bio {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #833ab4; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👤 Bio & Link in Bio Generator</h1>
+        <p class="subtitle">Create optimized bios for all platforms</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Your Name / Brand</label>
+                    <input type="text" id="name" placeholder="e.g., John Smith">
+                    
+                    <label>What You Do</label>
+                    <input type="text" id="role" placeholder="e.g., AI Consultant, Fitness Coach">
+                    
+                    <label>Unique Value</label>
+                    <input type="text" id="value" placeholder="e.g., Help businesses scale with AI">
+                    
+                    <label>Target Audience</label>
+                    <input type="text" id="audience" placeholder="e.g., Startup founders, Entrepreneurs">
+                    
+                    <label>Platform</label>
+                    <div class="platform-select">
+                        <button class="platform-btn active" onclick="setPlatform('instagram')">📸 IG</button>
+                        <button class="platform-btn" onclick="setPlatform('twitter')">🐦 X</button>
+                        <button class="platform-btn" onclick="setPlatform('linkedin')">💼 LinkedIn</button>
+                        <button class="platform-btn" onclick="setPlatform('tiktok')">🎵 TikTok</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateBios()">Generate Bios</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Live Preview</label>
+                    <div class="preview-box">
+                        <div class="preview-avatar"></div>
+                        <div class="preview-username" id="previewName">@yourname</div>
+                        <div class="preview-bio" id="previewBio">Your bio will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <label>Generated Bios</label>
+            <div id="biosList">
+                <p style="color: #a0a0a0; text-align: center; padding: 20px;">Fill in the form and click Generate!</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="stats">
+                <div class="stat">
+                    <div class="number" id="bioCount">0</div>
+                    <div class="label">Bios Generated</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPlatform = 'instagram';
+        
+        const bioTemplates = {
+            instagram: [
+                "✨ {role}\nHelping {audience} {value}\n\n📍 Based in {location}\n💼 {role} @ {company}\n👇 Free guide below",
+                "{role} 📍{location}\nHelping {audience} {value}\n\n✨ {achievement}\n🔥 Turned {result}\n👇 DM for collab",
+                "{role} | {value}\n\n{audience} coach helping you {goal}\n\n📚 {achievement}\n🚀 {result}\n👇 Free consultation",
+                "AI & Tech {role}\n{value}\n\n🏆 {achievement}\n💡 Sharing tips daily\n👇 Free resources",
+                "{role}\n{value}\n\nBuilding for {audience}\nSharing my {years} years of experience\n👇 Join our community"
+            ],
+            twitter: [
+                "{role} | {value}\n\nHelping {audience} scale 🚀\n\n🏆 {achievement}\n📖 Sharing insights daily\n\nRTs = appreciation",
+                "{role} ⚡\n{value}\n\n{audience} enthusiast\nBuilding in {industry}\n{years}+ years experience\n\nFollow for {topic} tips",
+                "AI {role}\n{value}\n\n🏆 {achievement}\nTurning {result}\n\nTweets about: {topic}",
+                "{role} @ {company}\n{value}\n\nHelping {audience} with {topic}\n{years} years in {industry}\n\nTweets worth your time ⬇️",
+                "Building {product} 🚀\n{role}\n\n{audience} + {value}\n\n{achievement}\n\nBuilding the future of {topic}"
+            ],
+            linkedin: [
+                "Helping {audience} achieve {goal} as {role}.\n\n🏆 {achievement}\n📈 Turned {result}\n💡 {years} years in {industry}\n\nLet's connect!",
+                "{role} | {value}\n\nSpecializing in helping {audience} {goal}\n\n✨ {achievement}\n📊 {result}\n\nOpen to collaborations",
+                "Senior {role} at {company}\n{value}\n\n{audience} expert with {years} years experience\n\n🎯 {achievement}\n🚀 {result}\n\nAlways learning, always growing",
+                "{role} | Executive Coach\n\nHelping {audience} leaders achieve more\n\n🏆 {achievement}\n✨ Transformed {result}\n\nLet's unlock your potential",
+                "Building the future of {industry}\n{role} @ {company}\n\n{value}\n\n🏆 {achievement}\n{years} years building products"
+            ],
+            tiktok: [
+                "{role} 🔥\nHelping {audience} {value}\n\nFollow for daily {topic} tips!\n👇 Free resources below",
+                "Your fav {role} ✨\n{value}\n\n🏆 {achievement}\n💡 Showing you how to {goal}\n\n1M+ views 💜",
+                "{role} | {value}\n\nTeaching {audience} about {topic}\n{years} years experience\n\nSave these tips! 🔖",
+                "🎵 {role}\n{value}\n\nI help {audience} {goal}\n\n🏆 {achievement}\n👇 Free course link",
+                "AI {role} (not an influencer) 🤖\n{value}\n\n{audience}, here's how to {goal}\n\n{achievement}\n\nFollow for tips!"
+            ]
+        };
+        
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateBios() {
+            const name = document.getElementById('name').value.trim() || 'Your Name';
+            const role = document.getElementById('role').value.trim() || 'Creator';
+            const value = document.getElementById('value').value.trim() || 'create content';
+            const audience = document.getElementById('audience').value.trim() || 'everyone';
+            
+            const templates = bioTemplates[currentPlatform];
+            
+            const data = {
+                name: name,
+                role: role,
+                value: value,
+                audience: audience,
+                goal: 'achieve their goals',
+                achievement: 'Helped 100+ clients',
+                result: 'clients 10x their revenue',
+                location: 'Worldwide',
+                company: 'Company',
+                product: 'the next big thing',
+                industry: 'tech',
+                years: '5',
+                topic: 'productivity',
+                goal: 'level up'
+            };
+            
+            const bios = templates.map(template => {
+                let bio = template
+                    .replace(/{role}/g, role)
+                    .replace(/{value}/g, value)
+                    .replace(/{audience}/g, audience)
+                    .replace(/{name}/g, name)
+                    .replace(/{achievement}/g, data.achievement)
+                    .replace(/{result}/g, data.result)
+                    .replace(/{location}/g, data.location)
+                    .replace(/{company}/g, data.company)
+                    .replace(/{years}/g, data.years)
+                    .replace(/{topic}/g, data.topic)
+                    .replace(/{goal}/g, data.goal)
+                    .replace(/{industry}/g, data.industry)
+                    .replace(/{product}/g, data.product);
+                
+                return {
+                    text: bio,
+                    platform: currentPlatform
+                };
+            });
+            
+            renderBios(bios);
+            
+            // Update preview
+            document.getElementById('previewName').textContent = '@' + name.toLowerCase().replace(/\s+/g, '');
+            document.getElementById('previewBio').textContent = bios[0].text.split('\n')[0];
+        }
+        
+        function renderBios(bios) {
+            const container = document.getElementById('biosList');
+            
+            if (bios.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Fill in the form and click Generate!</p>';
+                return;
+            }
+            
+            container.innerHTML = bios.map((bio, i) => `
+                <div class="bio-output" onclick="copyBio('${escapeHtml(bio.text)}')">
+                    <div class="platform">${bio.platform}</div>
+                    <div class="text">${bio.text}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('bioCount').textContent = bios.length;
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+        }
+        
+        function copyBio(bio) {
+            const text = bio.replace(/\\n/g, '\n');
+            navigator.clipboard.writeText(text);
+            
+            const boxes = document.querySelectorAll('.bio-output');
+            boxes.forEach(box => {
+                if (box.querySelector('.text').textContent === text) {
+                    box.style.background = 'rgba(131, 58, 180, 0.3)';
+                    setTimeout(() => box.style.background = '', 300);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
