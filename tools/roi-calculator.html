@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content ROI Calculator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        label { display: block; margin-bottom: 8px; color: #aaa; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .result-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .result-box .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        .result-box .label {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #4ecdc4;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #1a1a2e;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Content ROI Calculator</h1>
+        <p class="subtitle">Calculate return on content investment</p>
+        
+        <div class="card">
+            <label>Content Type</label>
+            <select id="type">
+                <option value="blog">Blog Post</option>
+                <option value="video">YouTube Video</option>
+                <option value="social">Social Media Post</option>
+                <option value="email">Email Newsletter</option>
+            </select>
+            
+            <label>Time Invested (hours)</label>
+            <input type="number" id="hours" placeholder="e.g., 4">
+            
+            <label>Your Hourly Rate ($)</label>
+            <input type="number" id="rate" placeholder="e.g., 50" value="50">
+            
+            <label>Expected Reach</label>
+            <input type="number" id="reach" placeholder="e.g., 10000">
+            
+            <label>Conversion Rate (%)</label>
+            <input type="number" id="conversion" placeholder="e.g., 2" value="2">
+            
+            <label>Product Price ($)</label>
+            <input type="number" id="price" placeholder="e.g., 29">
+            
+            <button onclick="calculate()">Calculate ROI</button>
+            
+            <div class="results" id="results" style="display:none;">
+                <div class="result-box">
+                    <div class="value" id="cost">$0</div>
+                    <div class="label">Time Cost</div>
+                </div>
+                <div class="result-box">
+                    <div class="value" id="conversions">0</div>
+                    <div class="label">Conversions</div>
+                </div>
+                <div class="result-box">
+                    <div class="value" id="revenue">$0</div>
+                    <div class="label">Revenue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const hours = parseFloat(document.getElementById('hours').value) || 0;
+            const rate = parseFloat(document.getElementById('rate').value) || 50;
+            const reach = parseFloat(document.getElementById('reach').value) || 0;
+            const conversion = parseFloat(document.getElementById('conversion').value) || 0;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            
+            const cost = hours * rate;
+            const conversions = Math.round(reach * (conversion / 100));
+            const revenue = conversions * price;
+            
+            document.getElementById('cost').textContent = '$' + cost;
+            document.getElementById('conversions').textContent = conversions;
+            document.getElementById('revenue').textContent = '$' + revenue;
+            
+            document.getElementById('results').style.display = 'grid';
+        }
+    </script>
+</body>
+</html>
