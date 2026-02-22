@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Tweet Formats</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #1da1f2; color: #fff; }
+        
+        .format-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #1da1f2;
+        }
+        .format-card:hover {
+            background: rgba(29, 161, 242, 0.15);
+        }
+        .format-card .name {
+            color: #1da1f2;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .format-card .example {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .tab.active { background: #1da1f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐦 Viral Tweet Formats</h1>
+        <p class="subtitle">Proven tweet structures that go viral</p>
+        
+        <div class="category-tabs">
+            <button class="tab active" onclick="filter('all')">All</button>
+            <button class="tab" onclick="filter('list')">Lists</button>
+            <button class="tab" onclick="filter('story')">Stories</button>
+            <button class="tab" onclick="filter('opinion')">Opinions</button>
+            <button class="tab" onclick="filter('howto')">How-To</button>
+        </div>
+        
+        <div class="card" id="formatsList"></div>
+        
+        <div class="card">
+            <h4>📝 Why These Work</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8;">
+                <li><strong>Lists:</strong> Easy to read, saves time, shareable</li>
+                <li><strong>Stories:</strong> Personal, relatable, emotional</li>
+                <li><strong>Opinions:</strong> Triggers discussion, provokes thought</li>
+                <li><strong>How-To:</strong> Educational, valuable, saves time</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const formats = [
+            {
+                category: "list",
+                name: "🧵 The Numbered List",
+                example: "🧵 [Topic]: What nobody tells you\n\n1/ [First point]\n2/ [Second point]\n3/ [Third point]\n4/ [Fourth point]\n5/ [Fifth point - strongest]\n\nSave this! 🧵"
+            },
+            {
+                category: "list",
+                name: "📝 The Quick Tips",
+                example: "5 [topic] tips in 30 seconds:\n\n1. [Tip 1]\n2. [Tip 2]\n3. [Tip 3]\n4. [Tip 4]\n5. [Tip 5]\n\nRetweet if helpful! 🔁"
+            },
+            {
+                category: "list",
+                name: "💡 The Framework",
+                example: "The [N] step [topic] framework:\n\nStep 1: [Step 1]\nStep 2: [Step 2]\nStep 3: [Step 3]\n\nDo this and [result]."
+            },
+            {
+                category: "story",
+                name: "📖 The Journey",
+                example: "My [journey topic] journey:\n\nIt started when [beginning]\n\nI had no idea [challenge]\n\nBut then [turning point]\n\nNow [result]\n\n🧵 Thread below for details"
+            },
+            {
+                category: "story",
+                name: "😱 The Plot Twist",
+                example: "I almost quit [topic].\n\nHere's what happened:\n\n[Story]\n\nThe lesson: [insight]\n\nIf you're struggling with [topic], keep going."
+            },
+            {
+                category: "story",
+                name: "🤯 The Realization",
+                example: "I just realized something about [topic]:\n\n[Insight]\n\nIt changed how I think about [related topic].\n\nHave you experienced this?"
+            },
+            {
+                category: "opinion",
+                name: "🔥 Hot Take",
+                example: "Unpopular opinion:\n\n[Common belief] is wrong.\n\nHere's why:\n\n1. [Reason 1]\n2. [Reason 2]\n3. [Reason 3]\n\nAgree or disagree? 👇"
+            },
+            {
+                category: "opinion",
+                name: "❌ The Anti-Advice",
+                example: "Stop doing [common advice].\n\nDo this instead:\n\n[Better approach]\n\nWhy? [Reason]\n\nThis changed everything for me."
+            },
+            {
+                category: "opinion",
+                name: "👀 The Secret",
+                example: "The truth about [topic]:\n\n[Truth]\n\nMost people don't know this because [reason].\n\nSave this for later! 📌"
+            },
+            {
+                category: "howto",
+                name: "⚡ The Quick Tutorial",
+                example: "How to [do something] in [time]:\n\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]\n\nThat's it!\n\nQuestions? Ask below 👇"
+            },
+            {
+                category: "howto",
+                name: "🎯 The Blueprint",
+                example: "The [topic] blueprint:\n\n→ [Principle 1]\n→ [Principle 2]  \n→ [Principle 3]\n→ [Principle 4]\n\nBookmark this! 🔖"
+            },
+            {
+                category: "howto",
+                name: "📚 The Resource",
+                example: "Everything you need to learn [topic]:\n\n📖 [Book/Course 1]\n📖 [Book/Course 2]\n📖 [Book/Course 3]\n\nSave this thread! 🧵"
+            },
+            {
+                category: "list",
+                name: "❌ The Mistakes",
+                example: "[N] [topic] mistakes you're probably making:\n\n1. [Mistake 1]\n2. [Mistake 2]\n3. [Mistake 3]\n\nI've made all of these.\n\nDon't be like me."
+            },
+            {
+                category: "story",
+                name: "📈 The Transformation",
+                example: "Before vs After [topic]:\n\nBEFORE:\n- [Bad habit 1]\n- [Bad habit 2]\n\nAFTER:\n- [Good habit 1]\n- [Good habit 2]\n\nHere's what changed [everything]."
+            },
+            {
+                category: "opinion",
+                name: "💯 The Prediction",
+                example: "[Topic] in [year] will be defined by:\n\n[Prediction 1]\n[Prediction 2]\n[Prediction 3]\n\nBookmark this. Come back in [timeframe] and thank me."
+            }
+        ];
+        
+        function render(categories = ['all']) {
+            const container = document.getElementById('formatsList');
+            
+            const filtered = formats.filter(f => 
+                categories.includes('all') || categories.includes(f.category)
+            );
+            
+            container.innerHTML = filtered.map(f => `
+                <div class="format-card" onclick="copyFormat(\`${f.example.replace(/`/g, '\\`')}\`)">
+                    <div class="name">${f.name}</div>
+                    <div class="example">${f.example}</div>
+                </div>
+            `).join('');
+        }
+        
+        function filter(category) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            render([category]);
+        }
+        
+        function copyFormat(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copied!');
+        }
+        
+        render();
+    </script>
+</body>
+</html>
