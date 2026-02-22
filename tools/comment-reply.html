@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Reply Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #e1306c; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #e1306c; color: #fff; }
+        .btn-primary:hover { background: #c13584; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        
+        .reply-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #e1306c;
+        }
+        .reply-card:hover {
+            background: rgba(225, 48, 108, 0.15);
+            transform: translateX(5px);
+        }
+        .reply-card .context {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        .reply-card .reply {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .style-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .style-btn:hover, .style-btn.active {
+            background: #e1306c;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💬 Comment Reply Generator</h1>
+        <p class="subtitle">Generate engaging replies for comments</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Original Comment</label>
+                    <textarea id="comment" placeholder="Paste the comment you want to reply to..." rows="3"></textarea>
+                    
+                    <label>Comment Type</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setType('positive')">👍 Positive</button>
+                        <button class="style-btn" onclick="setType('question')">❓ Question</button>
+                        <button class="style-btn" onclick="setType('negative')">😤 Negative</button>
+                        <button class="style-btn" onclick="setType('neutral')">😐 Neutral</button>
+                    </div>
+                    
+                    <label>Tone</label>
+                    <div class="style-select">
+                        <button class="style-btn active" onclick="setTone('friendly')">😊 Friendly</button>
+                        <button class="style-btn" onclick="setTone('professional')">💼 Professional</button>
+                        <button class="style-btn" onclick="setTone('humor')">😂 Humorous</button>
+                        <button class="style-btn" onclick="setTone('short')">⚡ Short</button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateReplies()">Generate Replies</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Generated Replies</label>
+                    <div id="repliesList">
+                        <p style="color: #aaa; text-align: center; padding: 20px;">Enter a comment and click Generate!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>💡 Reply Best Practices</h4>
+            <ul style="padding-left: 20px; color: #ccc; line-height: 1.8; margin-top: 10px;">
+                <li><strong>Respond quickly:</strong> Fast replies get more engagement</li>
+                <li><strong>Be authentic:</strong> Don't use generic copy-paste replies</li>
+                <li><strong>Add value:</strong> Provide helpful info, not just thanks</li>
+                <li><strong>Ask follow-up questions:</strong> Keep the conversation going</li>
+                <li><strong>Use emojis:</strong> They add personality (sparingly)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'positive';
+        let currentTone = 'friendly';
+        
+        const replyTemplates = {
+            positive: {
+                friendly: [
+                    "Thank you so much! 🙏 Means a lot!",
+                    "You're too kind! 💕 Really appreciate the support!",
+                    "Wow, thanks for the love! ❤️ Let's keep going!",
+                    "This made my day! 🌟 Thank you!",
+                    "You're amazing! ✨ Can't wait to share more!",
+                    "Thank you! Your support keeps me going! 💪",
+                    "So grateful! 🙏 This community is the best!",
+                    "Thanks a ton! 🎉 Love your energy!"
+                ],
+                professional: [
+                    "Thank you for your support! Really appreciate it.",
+                    "Thanks so much! Feel free to ask any questions.",
+                    "Appreciate the kind words! Let me know if you need anything.",
+                    "Thank you! Great to have you here.",
+                    "Thanks for the support! Stay tuned for more.",
+                    "Really appreciate your feedback!",
+                    "Thank you! Excited to share more content.",
+                    "Your support means a lot. Thank you!"
+                ],
+                humor: [
+                    "You're making me blush! 😄 Thanks fam!",
+                    "Okay I officially love you guys! 😂❤️",
+                    "Stop it! You're too sweet! 🥹✨",
+                    "This comments section is TOO kind! 😂💕",
+                    "I'm not crying, you're crying! 😭💖",
+                    "You guys are the BEST! 🎉 Love y'all!",
+                    "Okay that's it, I'm adding you to my will! 😂",
+                    "I don't deserve you people! ❤️😂"
+                ],
+                short: [
+                    "Thanks! 🙏",
+                    "Appreciate it! 💕",
+                    "Thank you! ✨",
+                    "Thanks so much! ❤️",
+                    "You're the best! 🎉",
+                    "Thanks! Means a lot!",
+                    "Appreciate the love! 🙏",
+                    "Thank you! 💪"
+                ]
+            },
+            question: {
+                friendly: [
+                    "Great question! Here's what I think...",
+                    "Love that you're asking! Here's the answer...",
+                    "That's a really good point! Let me explain...",
+                    "I'm so glad you asked! Here's how it works...",
+                    "Awesome question! Here's what you need to know...",
+                    "Thanks for asking! The answer is...",
+                    "You bet! Here's the full breakdown...",
+                    "Really smart question! Let me share..."
+                ],
+                professional: [
+                    "Happy to clarify! Here's the information...",
+                    "Great question. Here's what you should know...",
+                    "Thanks for asking. Let me address that...",
+                    "That's a common question. Here's the answer...",
+                    "I appreciate the question. Here's more context...",
+                    "Good question. Here's the detailed response...",
+                    "Thanks for bringing this up. Here's the answer...",
+                    "Excellent question. Here's what you need to know..."
+                ],
+                humor: [
+                    "Ooh good question! 🤔 Let me blow your mind...",
+                    "Ah yes, the famous question! 😂 Here's the tea...",
+                    "You asked THE question! 🎯 Here's the deal...",
+                    "I was waiting for someone to ask! 😄 Here's...",
+                    "100% valid question! Here's the answer...",
+                    "Love the curiosity! ✨ Here's what I learned...",
+                    "Ah yes, the question on everyone's mind! 😂",
+                    "You get a gold star for that question! ⭐ Here's..."
+                ],
+                short: [
+                    "Good question! Here's the answer...",
+                    "Great point! Here's how it works...",
+                    "Happy to explain! Here's...",
+                    "That's a great question! Here's...",
+                    "I get this a lot! Here's...",
+                    "Valid question! Here's...",
+                    "Smart ask! Here's...",
+                    "Exactly! Here's..."
+                ]
+            },
+            negative: {
+                friendly: [
+                    "I appreciate your feedback! Here's my perspective...",
+                    "Thanks for sharing your view. Let me clarify...",
+                    "I hear you! Here's what I was thinking...",
+                    "Fair point! Here's some context...",
+                    "Thanks for the honesty! Here's my take...",
+                    "I respect your opinion. Here's my reasoning...",
+                    "Valid concerns! Let me address them...",
+                    "Thanks for the feedback! Here's more info..."
+                ],
+                professional: [
+                    "Thank you for your feedback. I'd like to clarify...",
+                    "I understand your concern. Here's the context...",
+                    "That's a fair point. Here's my perspective...",
+                    "I appreciate the input. Here's more information...",
+                    "Thanks for sharing. Let me address this...",
+                    "I hear you. Here's my response...",
+                    "Valid feedback. Here's the full picture...",
+                    "Thank you for pointing that out. Here's..."
+                ],
+                humor: [
+                    "Oof, got me there! 😂 But here's the thing...",
+                    "Haha fair enough! 😅 Let me explain...",
+                    "Okay you got me! 😂 Here's my defense...",
+                    "I'm taking that as tough love! 😅 Here's...",
+                    "You know what? You're right! 😅 But also...",
+                    "Ouch! But I love the honesty! 😂 Here's...",
+                    "Okay, I'll own that! 😅 Here's my explanation...",
+                    "Can't argue with that! 😂 But here's..."
+                ],
+                short: [
+                    "I hear you. Here's more context...",
+                    "Fair point! Here's my take...",
+                    "Thanks for the feedback! Here's...",
+                    "Valid concern. Let me clarify...",
+                    "I understand. Here's more info...",
+                    "Good point! Here's...",
+                    "Thanks for sharing. Here's...",
+                    "I get it. Here's..."
+                ]
+            },
+            neutral: {
+                friendly: [
+                    "Thanks for commenting! Hope this helps!",
+                    "Appreciate you stopping by! Let me know if you have more questions!",
+                    "Thanks for the input! Feel free to ask anything else!",
+                    "Great to hear from you! Hope this answers your question!",
+ engaging! Happy                    "Thanks for to chat more!",
+                    "Thanks for the comment! Stay curious!",
+                    "Thanks for sharing your thoughts! Keep in touch!",
+                    "Appreciate the interaction! Ask away anytime!"
+                ],
+                professional: [
+                    "Thank you for your comment.",
+                    "Thanks for the input. Let me know if you have questions.",
+                    "Appreciate your engagement.",
+                    "Thanks for sharing. Happy to discuss further.",
+                    "Thank you for your feedback.",
+                    "Great to connect. Feel free to reach out.",
+                    "Thanks for the comment. Keep up the engagement.",
+                    "Appreciate you taking the time to comment."
+                ],
+                humor: [
+                    "Hey! Thanks for popping in! 😂✨",
+                    "Another one! 🎉 Love the engagement!",
+                    "You showed up! 👀 Thanks for the support!",
+                    "The comments are cooking! 🍳 Thanks for adding!",
+                    "Love it! 🔥 Keep 'em coming!",
+                    "You get it! 🙌 Thanks for the vibe!",
+                    "This comment section is EVERYTHING! 😂💕",
+                    "Adding to the chaos! 😂 Thanks for being here!"
+                ],
+                short: [
+                    "Thanks! 🙏",
+                    "Appreciate it!",
+                    "Thanks for commenting!",
+                    "Thanks for the input!",
+                    "Thanks for engaging!",
+                    "Appreciate you!",
+                    "Thanks!",
+                    "Cheers! 🙌"
+                ]
+            }
+        };
+        
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.style-select:first-child .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setTone(tone) {
+            currentTone = tone;
+            document.querySelectorAll('.style-select:nth-child(2) .style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateReplies() {
+            const comment = document.getElementById('comment').value.trim();
+            const templates = replyTemplates[currentType][currentTone];
+            
+            const replies = shuffleArray([...templates]);
+            
+            renderReplies(comment, replies);
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderReplies(comment, replies) {
+            const container = document.getElementById('repliesList');
+            
+            const context = comment ? `"${comment.substring(0, 100)}${comment.length > 100 ? '...' : ''}"` : 'No specific comment';
+            
+            container.innerHTML = replies.slice(0, 6).map((reply, i) => `
+                <div class="reply-card" onclick="copyReply('${escapeHtml(reply)}')">
+                    <div class="context">Original: ${context}</div>
+                    <div class="reply">${reply}</div>
+                </div>
+            `).join('');
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function copyReply(reply) {
+            navigator.clipboard.writeText(reply);
+            const cards = document.querySelectorAll('.reply-card');
+            cards.forEach(card => {
+                if (card.querySelector('.reply').textContent === reply) {
+                    card.style.background = 'rgba(225, 48, 108, 0.3)';
+                    setTimeout(() => card.style.background = '', 300);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
