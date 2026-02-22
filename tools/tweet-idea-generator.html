@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Tweet Ideas Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #a0a0a0; }
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus { outline: none; border-color: #4ecdc4; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #4ecdc4; color: #1a1a2e; }
+        .btn-primary:hover { background: #3dbdb5; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-copy { background: #ff6b6b; color: #fff; }
+        
+        .idea-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #4ecdc4;
+        }
+        .idea-card:hover {
+            background: rgba(78, 205, 196, 0.15);
+            transform: translateX(5px);
+        }
+        .idea-card .category {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .idea-card .text {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .category-select {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .category-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .template-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .template-box .label {
+            color: #4ecdc4;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .number { font-size: 1.5rem; font-weight: bold; color: #4ecdc4; }
+        .stat .label { font-size: 12px; color: #a0a0a0; }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💡 Viral Tweet Ideas Generator</h1>
+        <p class="subtitle">Generate engaging tweet concepts for any niche</p>
+        
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <label>Niche / Topic</label>
+                    <input type="text" id="niche" placeholder="e.g., AI, productivity, marketing, fitness">
+                    
+                    <label>Mood / Tone</label>
+                    <div class="category-select">
+                        <button class="category-btn active" onclick="setMood('all')">All</button>
+                        <button class="category-btn" onclick="setMood('educational')">Educational</button>
+                        <button class="category-btn" onclick="setMood('controversial')">Controversial</button>
+                        <button class="category-btn" onclick="setMood('story')">Story</button>
+                        <button class="category-btn" onclick="setMood('humor')">Humor</button>
+                        <button class="category-btn" onclick="setMood('motivational')">Motivational</button>
+                    </div>
+                    
+                    <label>Number of Ideas</label>
+                    <select id="count">
+                        <option value="5">5 Ideas</option>
+                        <option value="10" selected>10 Ideas</option>
+                        <option value="15">15 Ideas</option>
+                    </select>
+                    
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="generateIdeas()">Generate Ideas</button>
+                        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="number" id="ideaCount">0</div>
+                            <div class="label">Ideas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <label>Generated Ideas</label>
+                    <div id="ideasList">
+                        <p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a niche and click Generate!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4>📝 Tweet Formulas That Go Viral</h4>
+            <div class="grid" style="margin-top: 15px;">
+                <div class="template-box">
+                    <div class="label">The Contrarian Take</div>
+                    "Unpopular opinion: [Common belief] is wrong. Here's why..."
+                </div>
+                <div class="template-box">
+                    <div class="label">The Listicle</div>
+                    "[Number] [niche] things I wish I knew earlier:"
+                </div>
+                <div class="template-box">
+                    <div class="label">The Curiosity Gap</div>
+                    "The truth about [niche] that nobody talks about..."
+                </div>
+                <div class="template-box">
+                    <div class="label">The Transformation</div>
+                    "I went from [bad] to [good] in [time]. Here's how:"
+                </div>
+                <div class="template-box">
+                    <div class="label">The Myth Bust</div>
+                    "[Common myth about niche] is a lie. Here's the truth:"
+                </div>
+                <div class="template-box">
+                    <div class="label">The Prediction</div>
+                    "[Niche] in 2026 will be defined by one thing:"
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMood = 'all';
+        
+        const ideaTemplates = {
+            educational: [
+                "The 5 [niche] skills you need in 2026",
+                "Nobody talks about this [niche] secret",
+                "[niche] 101: A complete guide for beginners",
+                "Stop making these [niche] mistakes",
+                "The [niche] framework that changed everything",
+                "[niche] tip that took me years to learn",
+                "Here's the truth about [niche]",
+                "The [niche] mistake costing you time",
+                "5 [niche] facts that will surprise you",
+                "What I wish I knew about [niche] before",
+                "[niche] isn't what you think",
+                "The ultimate [niche] resource list",
+                "How to master [niche] in 30 days",
+                "The [niche] principle nobody follows",
+                "Learn this [niche] skill today"
+            ],
+            controversial: [
+                "Unpopular opinion: [niche] is overrated",
+                "Why [common belief] about [niche] is wrong",
+                "Hot take: [niche] is dead",
+                "The [niche] industry is lying to you",
+                "Why traditional [niche] advice fails",
+                "Stop believing [niche] myths",
+                "[niche] experts don't want you to know this",
+                "The dark side of [niche] nobody talks about",
+                "Why I quit [niche] (and came back)",
+                "Controversial: [niche] is not what you think",
+                "The [niche] truth they hide",
+                "Forget everything you know about [niche]",
+                "Why [niche] is actually harmful",
+                "The [niche] lie you've been told",
+                "This [niche] trend needs to stop"
+            ],
+            story: [
+                "My [niche] journey: From zero to hero",
+                "The day that changed my [niche] career",
+                "I tried [niche] for 30 days. Here's what happened.",
+                "The biggest mistake I made with [niche]",
+                "How [niche] saved my [something]",
+                "My [niche] failure story (and what I learned)",
+                "The moment I realized [something] about [niche]",
+                "1 year of [niche]: What I learned",
+                "How I went from [bad] to [good] with [niche]",
+                "The [niche] experience that changed me",
+                "I was wrong about [niche]",
+                "My [niche] experiment results",
+                "The [niche] challenge that transformed me",
+                "How [niche] almost ruined me (story)",
+                "The truth about my [niche] journey"
+            ],
+            humor: [
+                "POV: You're obsessed with [niche]",
+                "When [niche] hits different at 2am",
+                "Me trying to explain [niche] to my friend:",
+                "The [niche] equivalent of: [funny comparison]",
+                "POV: Your [niche] takes over your life",
+                "The [niche] starter pack",
+                "When you realize you've spent [time] on [niche]:",
+                "Me: 'I'll just check [niche] for 5 minutes'",
+                "The [niche] version of [something relatable]",
+                "POV: [niche] is your personality now",
+                "When [niche] becomes your entire personality",
+                "The [niche] memes that are too real",
+                "Me explaining [niche] vs reality",
+                "The [niche] spiral in real time",
+                "POV: You're in too deep with [niche]"
+            ],
+            motivational: [
+                "If you want to succeed in [niche], read this",
+                "Don't give up on [niche]",
+                "The [niche] mindset shift you need",
+                "Your [niche] journey isn't over",
+                "Keep going. [niche] is worth it.",
+                "The secret to [niche] success",
+                "Believe in your [niche] dreams",
+                "What [niche] taught me about life",
+                "Never stop learning [niche]",
+                "The power of consistency in [niche]",
+                "Your [niche] breakthrough is coming",
+                "Push through the [niche] struggle",
+                "The [niche] lesson that changed my life",
+                "Success in [niche] is a choice",
+                "Start your [niche] journey today"
+            ]
+        };
+        
+        function setMood(mood) {
+            currentMood = mood;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function generateIdeas() {
+            const niche = document.getElementById('niche').value.trim() || 'this';
+            const count = parseInt(document.getElementById('count').value);
+            
+            let templates = [];
+            
+            if (currentMood === 'all') {
+                Object.values(ideaTemplates).forEach(group => {
+                    templates = [...templates, ...group];
+                });
+            } else {
+                templates = ideaTemplates[currentMood] || [];
+            }
+            
+            // Shuffle and pick
+            templates = shuffleArray([...templates]).slice(0, count);
+            
+            // Replace niche placeholder
+            const ideas = templates.map(t => ({
+                text: t.replace(/\[niche\]/g, niche),
+                mood: currentMood === 'all' ? getRandomMood() : currentMood
+            }));
+            
+            renderIdeas(ideas);
+        }
+        
+        function getRandomMood() {
+            const moods = ['educational', 'controversial', 'story', 'humor', 'motivational'];
+            return moods[Math.floor(Math.random() * moods.length)];
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function renderIdeas(ideas) {
+            const container = document.getElementById('ideasList');
+            
+            if (ideas.length === 0) {
+                container.innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a niche and click Generate!</p>';
+                return;
+            }
+            
+            container.innerHTML = ideas.map((idea, i) => `
+                <div class="idea-card" onclick="copyIdea('${escapeHtml(idea.text)}')">
+                    <span class="category">${idea.mood}</span>
+                    <div class="text">${idea.text}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('ideaCount').textContent = ideas.length;
+        }
+        
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+        
+        function copyIdea(text) {
+            navigator.clipboard.writeText(text);
+            // Visual feedback
+            const cards = document.querySelectorAll('.idea-card');
+            cards.forEach(card => {
+                if (card.querySelector('.text').textContent === text) {
+                    card.style.background = 'rgba(78, 205, 196, 0.3)';
+                    setTimeout(() => card.style.background = '', 300);
+                }
+            });
+        }
+        
+        function clearAll() {
+            document.getElementById('niche').value = '';
+            document.getElementById('ideasList').innerHTML = '<p style="color: #a0a0a0; text-align: center; padding: 20px;">Enter a niche and click Generate!</p>';
+            document.getElementById('ideaCount').textContent = '0';
+        }
+    </script>
+</body>
+</html>
