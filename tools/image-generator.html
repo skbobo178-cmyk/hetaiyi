@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 圖片生成器 | AI Image Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d9ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        select, textarea, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        textarea:focus, select:focus, input:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+        .btn {
+            background: linear-gradient(90deg, #00d9ff, #a855f7);
+            color: #fff;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,217,255,0.3);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .result img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #00d9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            display: none;
+        }
+        .tips {
+            background: rgba(0,217,255,0.1);
+            border: 1px solid rgba(0,217,255,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #00d9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 AI 圖片生成器</h1>
+        <p class="subtitle">AI Image Generator | Qwen + JiMeng</p>
+        
+        <div class="card">
+            <div class="tips">
+                💡 提示：用詳細的英文描述可以獲得更好的結果。例如："A cute cat sitting on a velvet cushion, soft lighting, pastel colors, digital art"
+            </div>
+            
+            <label>選擇模型 / Select Model</label>
+            <select id="model">
+                <option value="qwen">Qwen Image Plus (阿里雲)</option>
+                <option value="jimeng">JiMeng 即夢AI (火山引擎)</option>
+            </select>
+            
+            <label>圖片尺寸 / Image Size</label>
+            <select id="size">
+                <option value="1024*1024">1024 × 1024 (正方形)</option>
+                <option value="720*1280">720 × 1280 (豎版)</option>
+                <option value="1280*720">1280 × 720 (橫版)</option>
+            </select>
+            
+            <label>描述你想生成的圖片 / Describe your image</label>
+            <textarea id="prompt" placeholder="A beautiful sunset over mountains, orange and purple sky, digital painting, highly detailed..."></textarea>
+            
+            <button class="btn" onclick="generateImage()">生成圖片 / Generate</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在生成中... / Generating...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // API 配置 - 需要後端服務器支援
+        const API_BASE = '/api/generate-image';
+        
+        async function generateImage() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const model = document.getElementById('model').value;
+            const size = document.getElementById('size').value;
+            
+            if (!prompt) {
+                showError('請輸入圖片描述 / Please enter a description');
+                return;
+            }
+            
+            showLoading(true);
+            hideError();
+            document.getElementById('result').innerHTML = '';
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, model, size })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('result').innerHTML = `
+                        <div class="card">
+                            <h3>✅ 生成完成 / Generated!</h3>
+                            <img src="${data.imageUrl}" alt="Generated Image" />
+                            <br><br>
+                            <a href="${data.imageUrl}" download="ai-image.png" class="btn" style="width:auto;display:inline-block;">下載圖片 / Download</a>
+                        </div>
+                    `;
+                } else {
+                    showError(data.error || '生成失敗 / Generation failed');
+                }
+            } catch (err) {
+                showError('請求失敗: ' + err.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(msg) {
+            const el = document.getElementById('error');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
